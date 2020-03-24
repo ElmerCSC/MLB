@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 7
+  Max Output Level = 3
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
