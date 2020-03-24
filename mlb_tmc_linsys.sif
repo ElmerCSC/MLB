@@ -323,11 +323,10 @@ End
 ! EQUATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
-  Active Solvers(4) = 2 3 4 5 
+  Active Solvers(5) = 2 3 4 5 6
   Convection = Computed
   Flow Solution Name = String "Flow Solution"
 End
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! INITIAL CONDITIONS

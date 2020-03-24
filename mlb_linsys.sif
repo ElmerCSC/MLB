@@ -20,7 +20,7 @@ $name="S_1995_DEMs_semlagvec"
 ! Note that the Mesh2MeshSolver requires solver specific
 ! mesh and hence this must be different than primary mesh,
 ! even symlink is ok.
-$restartdir="outline62_lc50"
+$restartdir="outline62_lc75"
 $restartfile="s_1995_dems_init_2d.result"
 
 $directmethod="mumps" 
@@ -48,7 +48,7 @@ $Tc = -1.0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Partitioned mesh
 Header
-  Mesh DB "." "outline62_lc50"
+  Mesh DB "." "outline62_lc75"
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

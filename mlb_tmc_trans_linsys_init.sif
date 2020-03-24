@@ -15,7 +15,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_tmc_trans_ semlag_vec"
+$name="S_1995_DEMs_tmc_trans_semlag_vec"
 
 #Tc = -1.0
 #directmethod="mumps" 
@@ -263,7 +263,7 @@ Solver 5
 End
 
 Solver 6
-   Exec Solver = "after timestep"
+   Exec Solver = "never"
    Equation = "Free Surface"
    Variable = String "Zs"
    Variable DOFs =  1
@@ -349,7 +349,7 @@ Initial Condition 1
 End
 
 Initial Condition 2
-
+  Zs = Equals surfacedem1995  
 End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! BODY FORCE
