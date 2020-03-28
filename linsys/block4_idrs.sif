@@ -13,7 +13,7 @@
   Outer: Linear System Solver = "Iterative"
   Outer: Linear System Iterative Method = GCR
   Outer: Linear System GCR Restart =  250
-  Outer: Linear System Residual Output = 1
+  Outer: Linear System Residual Output = 100
   Outer: Linear System Max Iterations =  200
   Outer: Linear System Abort Not Converged = False
   Outer: Linear System Convergence Tolerance = 1e-8

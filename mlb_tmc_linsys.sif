@@ -15,8 +15,8 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_tmc_semlag_vec"
-
+$name="S_1995_DEMs_tmc_vec"
+#MINH=20.0
 #Tc = -1.0
 #directmethod="mumps" 
 !---LUA BEGIN
@@ -72,6 +72,8 @@ Simulation
   Steady State Max Iterations = 20
   Steady State Min Iterations = 1
 
+  Output Intervals = 0
+
   ! usually, Dirichlet BC's are initialized before everything else. Sometimes those 
   ! conditions are dependent on solutions of earlier solvers; next line ensures that
   ! this is not an issue.
@@ -81,10 +83,10 @@ Simulation
   ! Output files
   ! ------------
   Post File = $name$.vtu
-  vtu: Save Bulk Only = Logical True
+  !vtu: Save Bulk Only = Logical True
 
-  Scalars File = $name$.dat
-  scalars: Parallel Reduce = Logical True
+  !Scalars File = $name$.dat
+  !scalars: Parallel Reduce = Logical True
 
   Output File = $name$.result
 
@@ -148,7 +150,7 @@ Solver 2
 
   Displacement Mode = Logical False
   Correct Surface = Logical True
-  Minimum Height = Real 5.0
+  Minimum Height = Real #MINH
 
   Correct Surface Mask = String "Glaciated"
   Dot Product Tolerance = 1.0e-3
@@ -157,10 +159,10 @@ Solver 2
   Variable = MeshUpdate
 
   Exported Variable 1 = "bedrockDEM"
-  Exported Variable 1 Mask = String "BedRock"
+  !Exported Variable 1 Mask = String "BedRock"
 
   Exported Variable 2 = "surfaceDEM1995"
-  Exported Variable 2 Mask = String "Surface"
+  !Exported Variable 2 Mask = String "Surface"
 End
 
 
@@ -234,11 +236,11 @@ Solver 5
   Linear System Direct Method = #directmethod
 !  Linear System Iterative Method = "GCR"
 !  Linear System Max Iterations = 500
-  Linear System Convergence Tolerance = 1.0E-07
+  Linear System Convergence Tolerance = 1.0E-08
   Linear System Abort Not Converged = False
   Linear System Preconditioning = "ILU1"
   Linear System Residual Output = 0
-  Nonlinear System Convergence Tolerance = 1.0E-06
+  Nonlinear System Convergence Tolerance = 1.0E-07
   Nonlinear System Max Iterations = 100
   !Nonlinear System Relaxation Factor = Real 9.999E-01
   Steady State Convergence Tolerance = 1.0E-03
@@ -352,6 +354,16 @@ Body Force 1
   Flow BodyForce 1 = 0.0
   Flow BodyForce 2 = 0.0 
   Flow BodyForce 3 = #gravity
+  Temp = Real 273.15
+  Temp Condition =Variable Coordinate 3 
+      Real
+            0.0      -1.0
+	  399.9999   -1.0
+	  400.        1.0
+         1000.0       1.0
+      End	 
+  !Variable Coordinate 3
+  !  Real lua "settemperate(tx[0])"
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -383,13 +395,22 @@ Material 1
   ! heat transfer
     ! Heat transfer stuff
   Temp Heat Capacity = Variable Temp
-    Real lua "capacity(tx[0])*yearinsec^(2.0)"
+    Real lua "capacity(tx[0])*yearinsec^(-2.0)"
+  !  Real lua "capacity(tx[0])*yearinsec^(2.0)"
 
   Temp Heat Conductivity = Variable Temp
     Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
+  !   Real lua "conductivity(tx[0])"
+  !  Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
     
   Temp Upper Limit = Real 273.15 ! we ignore pressure melting point
-  
+ 
+  !Convection Velocity 1 = Variable Velocity 1
+  !   Real lua "tx[0]/yearinsec"
+  !Convection Velocity 2 = Variable Velocity 2
+  !   Real lua "tx[0]/yearinsec"
+  !Convection Velocity 3 = Variable Velocity 3
+  !   Real lua "tx[0]/yearinsec"     
 End
 
 Boundary Condition 1
@@ -431,7 +452,7 @@ Boundary Condition 3
 ! Refererred by: Exported Variable 1 Mask = ...
   Bedrock = Logical True
   Temp Flux BC = Logical True
-  Temp Heat Flux = Real #0.200 * yearinsec * Pa2MPa ! 200 mW m^-2
+  Temp Heat Flux = Real #0.050 * yearinsec * Pa2MPa ! 200 mW m^-2
 
 End
 

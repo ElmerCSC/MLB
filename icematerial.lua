@@ -21,13 +21,21 @@ Q1 = 60.0E3
 Q2 = 139.0E3
 
 -- ## thermal properties
-function conductivity(T)
+function conductivity(Tin)
+ T = Tin
+ if (T > 273.15) then
+   T = 273.15
+ end 
  k=9.828*exp(-5.7E-03*T)
  return k
 end
 
 -- ## heat capacity
-function capacity(T)
+function capacity(Tin)
+  T = Tin
+  if (T > 273.15) then
+    T = 273.15
+  end 
   c=146.3+(7.253*T)
   return c
 end
