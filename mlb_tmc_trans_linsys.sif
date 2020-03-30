@@ -30,8 +30,7 @@ $name="S_1995_DEMs_tmc_trans_vec"
 ! Note that the Mesh2MeshSolver requires solver specific
 ! mesh and hence this must be different than primary mesh,
 ! even symlink is ok.
-$restartdir="outline62_lc75"
-$restartfile="s_1995_dems_init_2d.result"
+
 
 
 
@@ -68,15 +67,15 @@ Simulation
   BDF Order = 1
   Output Intervals(1) = 1         !#OutPutIntervals
   Timestep Intervals(1) = 30      !#Intervals
-  Timestep Sizes(1) = #1.0/365.25 !#dt
+  Timestep Sizes(1) = $1.0/365.25
 
   ! Internal extrusion parameters, may be altered.
   Extruded Mesh Levels = Integer 9 
-  Extruded Max Coordinate = Real #MINH	
+  Extruded Max Coordinate = Real #MINH
 
   ! Coupled iterations between different solvers
   !---------------------------------------------
-  Steady State Max Iterations = 10
+  Steady State Max Iterations = 1
   Steady State Min Iterations = 1 
 
   ! usually, Dirichlet BC's are initialized before everything else. Sometimes those 
@@ -125,19 +124,19 @@ Solver 1
 
   Displacement Mode = Logical False
   Correct Surface = Logical True
-  Minimum Height = Real #1.00001*MINH
+  Minimum Height = Real #MINH
 
   Correct Surface Mask = String "Glaciated"
   Dot Product Tolerance = 1.0e-3
 
   ! These are needed to host the variables that are read in
-  Variable = "Mesh Update"
-  Mesh Velocity Variable = String "Mesh Velocity 3"
-  Mesh Update Variable = String "Mesh Update"
-  Mesh Velocity First Zero  = True
+  Variable = "Meshupdate"
+  !Mesh Velocity Variable = String "Mesh Velocity 3"
+  !Mesh Velocity First Zero  = True
+  !Mesh Update Variable = String "Meshupdate"
 
   Exported Variable 1 = -dofs 3 "Mesh Velocity"
-  Exported Variable 2 = -dofs 1 "Mesh Update"
+  !Exported Variable 2 = -dofs 1 "Meshupdate"
 
   Exported Variable 3 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
@@ -162,25 +161,26 @@ End
 
 ! vectorized & threaded version of the Navier-Stokes solver.
 Solver 4
-  !Exec Solver = "Never"
+! Exec Solver = "Never"
   Equation = "Stokes-Vec"
   Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
   Div-Curl Discretization = Logical False
 
   Optimize Bandwidth = Logical True
+  Stokes Flow = Logical True
+  Stabilize = true
   Flow Model = Stokes
-  Stabilization Method = String Stabilized
 
   !Non-linear iteration settings:
   !------------------------------ 
-  Nonlinear System Max Iterations = 1
+  Nonlinear System Max Iterations = 10
   Nonlinear System Convergence Tolerance  = 1.0e-3
   Nonlinear System Newton After Iterations = 10
   Nonlinear System Newton After Tolerance = 1.0e-1
   ! Nonlinear System Relaxation Factor = 1.00
   ! Nonlinear System Reset Newton = Logical True
- Linear System Residual Output = 0
-  include linsys.sif
+  Linear System Residual Output = 10
+ include linsys.sif
 
   ! Convergence on timelevel (not required here)
   !---------------------------------------------
@@ -190,7 +190,7 @@ Solver 4
   Number of Integration Points = Integer 44 ! 21, 28, 44, 64, ...
 
   ! 1st iteration viscosity is constant
-  Constant-Viscosity Start = Logical True
+! Constant-Viscosity Start = Logical False
 
 ! Some timing info
   !Boundary Assembly Timing = Logical True
@@ -204,7 +204,7 @@ End
 ! as upper limit
 !-----------------------------------------------------
 Solver 3
-  !Exec Solver = "Never"
+  Exec Solver = "Never"
   Equation = String "Homologous Temperature Equation"
   Procedure =  File "ElmerIceSolvers" "TemperateIceSolver"
   ! Comment next line in parallel, as EliminateDirichlet does
@@ -212,18 +212,19 @@ Solver 3
   !------------------------------------------------------------
 !  Before Linsolve = "EliminateDirichlet" "EliminateDirichlet"
   Variable = String "Temp"
-  Variable DOFs = 1
+
   Stabilize = True
+
   Optimize Bandwidth = Logical True
   !Linear System Solver = "Direct"
   !Linear System Direct Method = #directmethod
   Linear System Solver = "Iterative"
-   Linear System Iterative Method = "GCR"
+  Linear System Iterative Method = "GCR"
   Linear System Max Iterations = 500
   Linear System Convergence Tolerance = 1.0E-07
   Linear System Abort Not Converged = False
   Linear System Preconditioning = "ILU1"
-  Linear System Residual Output = 0
+  Linear System Residual Output = 250
   Nonlinear System Convergence Tolerance = 1.0E-06
   Nonlinear System Max Iterations = 50
   !Nonlinear System Relaxation Factor = Real 9.999E-01
@@ -237,6 +238,7 @@ Solver 3
   !-------------------------------------------------
   Exported Variable 1 = String "Temp Homologous"
   Exported Variable 1 DOFs = 1
+
   Exported Variable 2 = String "Temp Residual"
   Exported Variable 2 DOFs = 1
   Apply Dirichlet = True
@@ -320,19 +322,19 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Initial Condition 1
   ! Initial velocity is not really needed when using newtonian start
-  !Velocity 1 = 0.0
-  !Velocity 2 = 0.0
-  !Velocity 3 = 0.0
-  Temp = Variable Coordinate 3 ! lapserate of -10/1000 C/m
-      Real
-            0.0   272.14
-	  100.0   272.15
-         1000.0   263.15
-      End 
+   Mesh Velocity 1 = Real 0.0
+   Mesh Velocity 2 = Real 0.0
+   Mesh Velocity 3 = Real 0.0
+  ! Temp = Variable Coordinate 3 ! lapserate of -10/1000 C/m
+  !     Real
+  !           0.0   272.14
+  !    100.0   272.15
+  !        1000.0   263.15
+  !       End 
 End
 
 Initial Condition 2
-  Zs = Equals  surfaceDEM1995
+  Zs = Equals surfaceDEM1995
 !Zs = Variable  surfaceDEM1995,bedrockDEM
   !  Real lua "initzs(tx[0],tx[1])"
 End
@@ -343,26 +345,41 @@ Body Force 1
   Flow BodyForce 1 = 0.0
   Flow BodyForce 2 = 0.0 
   Flow BodyForce 3 = #gravity
+
   Velocity 1 = 0.0
   Velocity 1 Condition = Opposes glaciated
+
   Velocity 2 = 0.0
   Velocity 2 Condition = Opposes glaciated
+
   Velocity 3 = 0.0
   Velocity 3 Condition = Opposes glaciated
+
   !Flow Solution Passive =  Opposes glaciated
-  Temp Passive  =  Opposes glaciated
+  !Temp Passive  =  Opposes glaciated
   !Temp = Variable Coordinate 3 ! lapserate of -10/1000 C/m
   !    Real
   !          0.0   272.15
-!	  100.0   272.14
-!         1000.0   263.15
-!      End 
-  Temp Condition = Opposes glaciated
+  !	  100.0   272.14
+  !         1000.0   263.15
+  !      End 
+! Temp Condition = Opposes glaciated
+
+  Temp = Real 273.15
+  Temp Condition =Variable Coordinate 3
+      Real
+            0.0      -1.0
+          399.9999   -1.0
+          400.        1.0
+         1000.0       1.0
+      End
+
   
 End
 Body Force 2
-  Zs Accumulation = Variable Coordinate 3, glaciated
-     Real lua "accum(tx[0],tx[1])"
+  Zs Accumulation = Real 0.0
+! Zs Accumulation = Variable Coordinate 3, glaciated
+!    Real lua "accum(tx[0],tx[1])"
 End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! MATERIAL
@@ -393,9 +410,10 @@ Material 1
   !  Real lua "reltemp(tx[0])"
 
   ! heat transfer
-    ! Heat transfer stuff
-  Temp Heat Capacity = Real #2100.0*yearinsec^(-2.0)
+  ! Heat transfer stuff
+  Temp Heat Capacity = Real #2100.0*yearinsec^(2.0)
   Temp Heat Conductivity =  Real #2.2*yearinsec*Pa2MPa
+
   !Temp Heat Capacity = Variable Temp
   !  Real lua "capacity(tx[0])*yearinsec^(3.0)"
   !  Real lua "capacity(tx[0])*yearinsec^(2.0)"
@@ -407,7 +425,7 @@ Material 1
 End
 
 Material 2
-   Name = "SMB"
+  Name = "SMB"
   Min Zs = Variable "bedrockDEM"
     Real lua "tx[0] + MINH"
 End
@@ -416,7 +434,6 @@ Boundary Condition 1
   ComputeNormal = Logical False
   Name = "sides1"
   Target Boundaries(1) = 1
-  Normal-Tangential Velocity = True
   ! no slip
   !-------------------------
   Velocity 1 = 0
@@ -430,8 +447,6 @@ Boundary Condition 2
   ComputeNormal = Logical False
   Name = "sides2"
   Target Boundaries(1)  = 2
-  Normal-Tangential Velocity = True
-  ! no slip
   !-------------------------
   Velocity 1 = 0
   Velocity 2 = 0
@@ -474,6 +489,7 @@ Boundary Condition 4
   Name = "surface"
   Body ID = 2
   Top Surface = Equals "zs"
+! Top Surface = Equals  surfaceDEM1995
 
 
 ! Referred by: Exported Variable 2 Mask = ...

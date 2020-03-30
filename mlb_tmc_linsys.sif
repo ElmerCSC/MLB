@@ -156,7 +156,7 @@ Solver 2
   Dot Product Tolerance = 1.0e-3
 
   ! These are needed to host the variables that are read in
-  Variable = MeshUpdate
+  Variable = -nooutput "DummyMesh"
 
   Exported Variable 1 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
@@ -258,54 +258,7 @@ Solver 5
   Apply Dirichlet = True
 End
 
-! Semilagrangian solver for advection dominated flow
-Solver 6
-  Exec Solver = After Simulation
-  Equation = ParticleAdvector
-  Procedure = "ParticleAdvector" "ParticleAdvector"
 
-! Initialize particles at center of elements (as opposed to nodes)
-  Advect Elemental = Logical True
-
-!  Reinitialize Particles = Logical True
-!  Particle Accurate At Face = Logical False
-
-! Timestepping strategy
-  Simulation Timestep Sizes = Logical False
-  Particle Dt Constant = Logical False
-  Max Timestep Intervals = Integer 1000
-
-! Time in average 4 steps in each element 
-  Timestep Unisotropic Courant Number = Real 0.25
-  Max Timestep Size = Real 1.0e3
-
-! Give up integration if particles are tool old
-  Max Integration Time = Real 1.0e4
-
-! Integration forward in time
-  Runge Kutta = Logical False
-  Velocity Gradient Correction = Logical True
-  Velocity Variable Name = String "Flow Solution" 
-
-! Show some info in the end
-  Particle Info = Logical True
-  Particle Time = Logical True
-
-! The internal variables for this solver
-  Variable 1 = String "Particle Distance"
-  Variable 2 = String "Particle Time Integral"
-
-! The field variables being advected
-  Variable 3 = String "Coordinate 1"
-  Result Variable 3 = String "Advected X"
-  Variable 4 = String "Coordinate 2"
-  Result Variable 4 = String "Advected Y"
-  Variable 5 = String "Coordinate 3"
-  Result Variable 5 = String "Advected Z"
-
-  Solver Timing = True
-  exec solver = never
-End 
 
 
 
@@ -325,7 +278,7 @@ End
 ! EQUATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
-  Active Solvers(5) = 2 3 4 5 6
+  Active Solvers(5) = 1 2 3 4 5
   Convection = Computed
   Flow Solution Name = String "Flow Solution"
 End
@@ -395,7 +348,7 @@ Material 1
   ! heat transfer
     ! Heat transfer stuff
   Temp Heat Capacity = Variable Temp
-    Real lua "capacity(tx[0])*yearinsec^(-2.0)"
+    Real lua "capacity(tx[0])*yearinsec^(2.0)"
   !  Real lua "capacity(tx[0])*yearinsec^(2.0)"
 
   Temp Heat Conductivity = Variable Temp
