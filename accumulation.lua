@@ -18,7 +18,16 @@ function initzs(surf,bed)
   if ((surf - bed) < MINH) then
     zs = bed + MINH
   end
+  return zs
 end
+
+function meshupdate(surf,bed,zs)
+  mu = zs - surf
+  if ((surf - bed) < MINH) then
+     mu = zs - bed + MINH
+  end
+  return mu
+end  
 
 function settemperate(z)
   if (z > 400.0) then
