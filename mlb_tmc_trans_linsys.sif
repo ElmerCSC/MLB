@@ -99,12 +99,19 @@ Simulation
   Restart Position = 0
   Restart Before Initial Conditions = Logical True
   Interpolation Passive Coordinate = Integer 3 
-
+  Restart Variable 1 = String "bedrockDEM"
+  Restart Variable 2 = String "surfaceDEM1995"
+  Restart Variable 3 = String "Velocity 1"
+  Restart Variable 4 = String "Velocity 2"
+  Restart Variable 5 = String "Velocity 3"
+  Restart Variable 6 = String "Pressure"
+  Restart Variable 7 = String "Temp"
+  Restart Variable 8 = String "Temp Homologous"
   ! how verbose the solver should be
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 3
+  Max Output Level = 5
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -131,12 +138,12 @@ Solver 1
 
   ! These are needed to host the variables that are read in
   Variable = "Meshupdate"
-  !Mesh Velocity Variable = String "Mesh Velocity 3"
-  !Mesh Velocity First Zero  = True
-  !Mesh Update Variable = String "Meshupdate"
+  Mesh Velocity Variable = String "Mesh Velocity 3"
+  Mesh Velocity First Zero  = True
+  Mesh Update Variable = String "ds"
 
   Exported Variable 1 = -dofs 3 "Mesh Velocity"
-  !Exported Variable 2 = -dofs 1 "Meshupdate"
+  Exported Variable 2 = -dofs 1 "ds"
 
   Exported Variable 3 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
@@ -160,7 +167,7 @@ End
 
 
 ! vectorized & threaded version of the Navier-Stokes solver.
-Solver 4
+Solver 3
 ! Exec Solver = "Never"
   Equation = "Stokes-Vec"
   Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
@@ -203,8 +210,8 @@ End
 ! heat transfer limited by the pressure melting point
 ! as upper limit
 !-----------------------------------------------------
-Solver 3
-  Exec Solver = "Never"
+Solver 4
+  !Exec Solver = "Never"
   Equation = String "Homologous Temperature Equation"
   Procedure =  File "ElmerIceSolvers" "TemperateIceSolver"
   ! Comment next line in parallel, as EliminateDirichlet does
@@ -216,15 +223,15 @@ Solver 3
   Stabilize = True
 
   Optimize Bandwidth = Logical True
-  !Linear System Solver = "Direct"
-  !Linear System Direct Method = #directmethod
-  Linear System Solver = "Iterative"
-  Linear System Iterative Method = "GCR"
+  Linear System Solver = "Direct"
+  Linear System Direct Method = #directmethod
+  !Linear System Solver = "Iterative"
+  !Linear System Iterative Method = "GCR"
   Linear System Max Iterations = 500
   Linear System Convergence Tolerance = 1.0E-07
   Linear System Abort Not Converged = False
-  Linear System Preconditioning = "ILU1"
-  Linear System Residual Output = 250
+  Linear System Preconditioning = "ILU0"
+  Linear System Residual Output = 10
   Nonlinear System Convergence Tolerance = 1.0E-06
   Nonlinear System Max Iterations = 50
   !Nonlinear System Relaxation Factor = Real 9.999E-01
