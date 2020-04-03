@@ -260,7 +260,7 @@ Solver 5
    ! needed for evaluating the contact pressure
    Exported Variable 1 = -dofs 1 "Zs Residual"
    ! needed for storing the initial shape (needed for updates)
-   !Exported Variable 2 = -dofs 1 "RefZs"
+   Exported Variable 2 = -dofs 1 "Ref Zs"
    Procedure = "FreeSurfaceSolver" "FreeSurfaceSolver"
   ! This would take the contrained points out of solution
   ! Use in serial run, only
@@ -341,9 +341,11 @@ Initial Condition 1
 End
 
 Initial Condition 2
-  Zs = Equals surfaceDEM1995
-!Zs = Variable  surfaceDEM1995,bedrockDEM
-  !  Real lua "initzs(tx[0],tx[1])"
+  !Zs = Equals surfaceDEM1995
+  Zs = Variable  surfaceDEM1995,bedrockDEM
+    Real lua "initzs(tx[0],tx[1])"
+  Ref Zs =  Variable  surfaceDEM1995,bedrockDEM
+    Real lua "initzs(tx[0],tx[1])"
 End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! BODY FORCE
@@ -384,9 +386,9 @@ Body Force 1
   
 End
 Body Force 2
-  Zs Accumulation = Real 0.0
-! Zs Accumulation = Variable Coordinate 3, glaciated
-!    Real lua "accum(tx[0],tx[1])"
+ ! Zs Accumulation = Real 0.0
+ Zs Accumulation = Variable Coordinate 3, glaciated
+    Real lua "accum(tx[0],tx[1])"
 End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! MATERIAL
@@ -446,8 +448,7 @@ Boundary Condition 1
   Velocity 1 = 0
   Velocity 2 = 0
   Velocity 3 = 0
-  Zs = Variable bedrockDEM
-    Real lua "tx[0] + MINH"
+  Zs = Equals "Ref Zs"
 End
 
 Boundary Condition 2
@@ -458,8 +459,7 @@ Boundary Condition 2
   Velocity 1 = 0
   Velocity 2 = 0
   Velocity 3 = 0
-  Zs = Variable bedrockDEM
-    Real lua "tx[0] + MINH"
+  Zs = Equals "Ref Zs"
 End
 
 !! DON'T CHANGE ORDER OF NEXT 2 BC's!
@@ -496,7 +496,7 @@ Boundary Condition 4
   Name = "surface"
   Body ID = 2
   Top Surface = Equals "zs"
-! Top Surface = Equals  surfaceDEM1995
+! Top Surface = Equals  surfaceDEM1995 !if you want to test constant geometry
 
 
 ! Referred by: Exported Variable 2 Mask = ...

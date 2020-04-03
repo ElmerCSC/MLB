@@ -99,7 +99,12 @@ Simulation
   Restart Position = 0
   Restart Before Initial Conditions = Logical True
   Interpolation Passive Coordinate = Integer 3 
-
+  Restart Variable 1 = String "bedrockDEM"
+  Restart Variable 2 = String "surfaceDEM1995"
+  Restart Variable 3 = String "Velocity 1"
+  Restart Variable 4 = String "Velocity 2"
+  Restart Variable 5 = String "Velocity 3"
+  Restart Variable 6 = String "Pressure"
   ! how verbose the solver should be
   !  3 = Only warnings
   ! 32 = Maximum verbosity
@@ -499,7 +504,6 @@ Boundary Condition 4
   ComputeNormal = Logical False
   Name = "surface"
   Body ID = 2
-!  Top Surface = Equals ""
   Top Surface = Equals  surfaceDEM1995
 
 
