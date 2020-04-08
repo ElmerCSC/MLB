@@ -137,20 +137,19 @@ Solver 1
   Dot Product Tolerance = 1.0e-3
 
   ! These are needed to host the variables that are read in
-  Variable = "Meshupdate"
+  Variable = -nooutput "DummyMesh"
   Mesh Velocity Variable = String "Mesh Velocity 3"
   Mesh Velocity First Zero  = True
-  Mesh Update Variable = String "ds"
+  Mesh Update Variable = String "dz"
 
-  Exported Variable 1 = -dofs 3 "Mesh Velocity"
-  Exported Variable 2 = -dofs 1 "ds"
 
-  Exported Variable 3 = "bedrockDEM"
+  Exported Variable 1 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
-  Exported Variable 4 = "surfaceDEM1995"
+  Exported Variable 2 = "surfaceDEM1995"
   !Exported Variable 2 Mask = String "Surface"
 
-  !Exported Variable 3 = -dofs 3 "Mesh Velocity"
+  Exported Variable 3 = -dofs 3 "Mesh Velocity"
+  Exported Variable 4 = -dofs 1 "dz"
  
 End
 
@@ -223,15 +222,15 @@ Solver 4
   Stabilize = True
 
   Optimize Bandwidth = Logical True
-  Linear System Solver = "Direct"
-  Linear System Direct Method = #directmethod
-  !Linear System Solver = "Iterative"
-  !Linear System Iterative Method = "GCR"
+  !Linear System Solver = "Direct"
+  !Linear System Direct Method = #directmethod
+  Linear System Solver = "Iterative"
+  Linear System Iterative Method = "GCR"
   Linear System Max Iterations = 500
   Linear System Convergence Tolerance = 1.0E-07
   Linear System Abort Not Converged = False
-  Linear System Preconditioning = "ILU0"
-  Linear System Residual Output = 10
+  Linear System Preconditioning = "ILU1"
+  Linear System Residual Output = 250
   Nonlinear System Convergence Tolerance = 1.0E-06
   Nonlinear System Max Iterations = 50
   !Nonlinear System Relaxation Factor = Real 9.999E-01
@@ -314,7 +313,6 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
   Active Solvers(4) = 1 2 3 4
-  !Convection = Constant
   Convection = Computed
   Flow Solution Name = String "Flow Solution"
 End

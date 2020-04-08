@@ -105,6 +105,8 @@ Simulation
   Restart Variable 4 = String "Velocity 2"
   Restart Variable 5 = String "Velocity 3"
   Restart Variable 6 = String "Pressure"
+  Restart Variable 7 = String "Temp"
+  Restart Variable 8 = String "Temp Homologous"
   ! how verbose the solver should be
   !  3 = Only warnings
   ! 32 = Maximum verbosity
@@ -140,15 +142,14 @@ Solver 1
   !Mesh Velocity First Zero  = True
   !Mesh Update Variable = String "dz"
 
-  !Exported Variable 1 = -dofs 3 "Mesh Velocity"
-  !Exported Variable 2 = -dofs 1 "dz"
 
-  Exported Variable 3 = "bedrockDEM"
+  Exported Variable 1 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
-  Exported Variable 4 = "surfaceDEM1995"
+  Exported Variable 2 = "surfaceDEM1995"
   !Exported Variable 2 Mask = String "Surface"
 
   !Exported Variable 3 = -dofs 3 "Mesh Velocity"
+  !Exported Variable 4 = -dofs 1 "dz"
  
 End
 
@@ -504,7 +505,7 @@ Boundary Condition 4
   ComputeNormal = Logical False
   Name = "surface"
   Body ID = 2
-  Top Surface = Equals  surfaceDEM1995
+  Top Surface = Equals  surfaceDEM1995 ! only needed in initialization step
 
 
 ! Referred by: Exported Variable 2 Mask = ...
