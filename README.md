@@ -1,5 +1,5 @@
-# MLB
-Midtre Lovenbreen testcase
+# MLB (*M*idtre *L*ovén*B*reen)
+This is the repository containing the Midtre Lovénbreen testcase, used in the Elmer/Ice beginner's course http://elmerfem.org/elmerice/wiki/doku.php?id=courses:courses 
 
 The following SIF's are:
 * mlb_linsys.sif    ... mechanical-only steady state problem using vectorized Navier-Stokes solver
