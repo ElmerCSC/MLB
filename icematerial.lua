@@ -1,7 +1,6 @@
 -- #############################################################
 --  A list of usefull constants for ice-sheet simulations
---   - Can be included in elmer configuration .sif files using
---        include PATH_TO/Physical_Params.IN 
+--   
 --   - Unit System =
 --      -- m
 --      -- a
