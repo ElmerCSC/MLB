@@ -236,8 +236,9 @@ Solver 4
   block 44: Linear System Scaling = true
 
   AMGX config = string "config.json"
-
-  Nonlinear System Max Iterations = 100
+  Block AMGX M-V = Logical True
+  
+  Nonlinear System Max Iterations = 1
   Nonlinear System Convergence Tolerance  = 1.0e-5
   Nonlinear System Newton After Iterations = 10
   Nonlinear System Newton After Tolerance = 1.0e-01
