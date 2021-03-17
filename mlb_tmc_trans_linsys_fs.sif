@@ -66,7 +66,7 @@ Simulation
   Timestepping Method = "bdf"
   BDF Order = 1
   Output Intervals(1) = 1         !#OutPutIntervals
-  Timestep Intervals(1) = 30      !#Intervals
+  Timestep Intervals(1) = 50      !#Intervals
   Timestep Sizes(1) = $1.0/365.25
 
   ! Internal extrusion parameters, may be altered.
@@ -75,7 +75,7 @@ Simulation
 
   ! Coupled iterations between different solvers
   !---------------------------------------------
-  Steady State Max Iterations = 1
+  Steady State Max Iterations = 10
   Steady State Min Iterations = 1 
 
   ! usually, Dirichlet BC's are initialized before everything else. Sometimes those 
