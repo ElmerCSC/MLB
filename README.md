@@ -3,6 +3,7 @@ This is the repository containing the Midtre Lovénbreen testcase, used in the E
 
 The following SIF's are:
 * `mlb_linsys.sif`    ... mechanical-only steady state problem using vectorized Navier-Stokes solver
+* `mlb_amgx.sif`      ... mechanical-only steady state problem using vectorized Navier-Stokes solver with NVIDIA AMGX library to offload block solutions (needs CUDA enables GPU and amgx_interface branch)
 * `mlb.sif`            ... legacy Navier-Stokes version of the above
 * `mlb_tmc_linsys.sif` ... thermo-mechanically coupled steady state problem using vectorized Navier-Stokes solver (works)
 * `mlb_tmc_trans_linsys.sif`   ...  thermo-mechanically coupled steady state problem using vectorized Navier-Stokes solver and struct. mesh mapper (problematic)

@@ -260,7 +260,7 @@ Solver 5
   Result Variable 5 = String "Advected Z"
 
   Solver Timing = True
-  exec solver = never
+  !exec solver = never
 End 
 
 
