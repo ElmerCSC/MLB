@@ -15,7 +15,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in ru
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_tmc_trans_vec_fs"
+$name="S_1995_DEMs_tmc_trans_vec_smooth"
 
 #MINH=20.0
 #directmethod="mumps" 
@@ -111,7 +111,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 3
+  Max Output Level = 5
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -119,11 +119,9 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-
-
 ! Maps the constant-thickness mesh between given bedrock and surface topology
 Solver 1 
-  Exec Solver = "before simulation"
+  Exec Solver = "before Timestep"
   Equation = "MapCoordinate"
   Procedure = "StructuredMeshMapper" "StructuredMeshMapper"
 
@@ -138,9 +136,11 @@ Solver 1
 
   ! These are needed to host the variables that are read in
   Variable = -nooutput "DummyMesh"
-  !Mesh Velocity Variable = String "Mesh Velocity 3"
-  !Mesh Velocity First Zero  = True
-  !Mesh Update Variable = String "dz"
+  !Mesh Velocity Variable = String "mv"
+  Mesh Velocity Variable = String "Mesh Velocity 3"
+  Mesh Velocity First Zero  = True
+  Mesh Update Variable = String "dz"
+  !Mesh Update Variable = String "Mesh Update 3"
 
 
   Exported Variable 1 = "bedrockDEM"
@@ -148,14 +148,44 @@ Solver 1
   Exported Variable 2 = "surfaceDEM1995"
   !Exported Variable 2 Mask = String "Surface"
 
-  !Exported Variable 3 = -dofs 3 "Mesh Velocity"
-  !Exported Variable 4 = -dofs 1 "dz"
+
+  !Exported Variable 3 = -dofs 1 "dz"
  
 End
 
+Solver 2
+  Equation = "Mesh smoother"
+  Exec Solver = "Before Timestep"
+  !Exec Solver = "Never"
+  Procedure = File "MeshSolve" "MeshSolver"
+  Variable = -dofs 3 "Mesh Update"
+!  Linear System Solver = Iterative
+!  Linear System Iterative Method = BiCGStab
+
+  Linear System Solver = Direct
+  Linear System Direct Method = MUMPS
+  
+
+  Linear System Preconditioning = ILU1
+  Linear System Max Iterations = 1000
+  Linear System Residual Output = 20
+  Linear System Convergence Tolerance = 1.0e-8
+  Steady State Convergence Tolerance = 1.0e-4
+End
+
+! Computes height and depth assuming an extruded mesh.
+Solver 3 
+  Exec Solver = "before Timestep" 
+  Equation = "HeightDepth"
+  Procedure = "StructuredProjectToPlane" "StructuredProjectToPlane"
+  Active Coordinate = Integer 3
+  Operator 1 = depth
+  Operator 2 = height
+End 
+
 
 ! vectorized & threaded version of the Navier-Stokes solver.
-Solver 2
+Solver 4
 ! Exec Solver = "Never"
   Equation = "Stokes-Vec"
   Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
@@ -198,7 +228,7 @@ End
 ! heat transfer limited by the pressure melting point
 ! as upper limit
 !-----------------------------------------------------
-Solver 3
+Solver 5
   !Exec Solver = "Never"
   Equation = String "Homologous Temperature Equation"
   Procedure =  File "ElmerIceSolvers" "TemperateIceSolver"
@@ -236,10 +266,14 @@ Solver 3
 
   Exported Variable 2 = String "Temp Residual"
   Exported Variable 2 DOFs = 1
+  Exported Variable 3 = -dofs 1 "dz"
+  !Exported Variable 4 = -dofs 1 "mv"
+  !Exported Variable 4 = -dofs 3 "Mesh Velocity"
+  !Exported Variable 4 = -dofs 3 "Mesh Update"
   Apply Dirichlet = True
 End
 
-Solver 4
+Solver 6
    Exec Solver = "after timestep"
    !Exec Solver = "Never"
    Equation = "Free Surface"
@@ -269,30 +303,13 @@ Solver 4
    !Stabilization Method = Bubbles
    ! Apply contact problem    
    Apply Dirichlet = Logical True
+
 ! How much the free surface is relaxed
 !  Relaxation Factor = Real 0.90      
  
 End
 
-Solver 5
-  Equation = "Mesh deform"
-  Exec Solver = "After Timestep"
-  !Exec Solver = "Never"
-  Procedure = File "MeshSolve" "MeshSolver"
-  Variable = -dofs 3 "Mesh Update"
-!  Linear System Solver = Iterative
-!  Linear System Iterative Method = BiCGStab
 
-  Linear System Solver = Direct
-  Linear System Direct Method = MUMPS
-  
-
-  Linear System Preconditioning = ILU1
-  Linear System Max Iterations = 1000
-  Linear System Residual Output = 20
-  Linear System Convergence Tolerance = 1.0e-8
-  Steady State Convergence Tolerance = 1.0e-4
-End
 
 
 
@@ -318,13 +335,13 @@ End
 ! EQUATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
-  Active Solvers(4) = 1 2 3 5
+  Active Solvers(5) = 1 2 3 4 5
   Convection = Computed
   Flow Solution Name = String "Flow Solution"
 End
 
 Equation 2
-  Active Solvers(1) = 4
+  Active Solvers(1) = 6
   Convection = Computed
   Flow Solution Name = String "Flow Solution"
 End
@@ -388,7 +405,6 @@ Body Force 1
       End
   Mesh Update 1 = Real 0.0
   Mesh Update 2 = Real 0.0
-  
 End
 Body Force 2
  ! Zs Accumulation = Real 0.0
@@ -436,8 +452,6 @@ Material 1
   !  Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
   Temp Upper Limit = Real 273.15 ! we ignore pressure melting point
   !Temp Lower Limit = Real 263.15
-  Mesh Poisson Ratio = 0.25
-  Mesh Elastic Modulus = 1.0
 End
 
 Material 2
@@ -456,6 +470,8 @@ Boundary Condition 1
   Velocity 2 = 0
   Velocity 3 = 0
   Zs = Equals "Ref Zs"
+  Mesh Update 1 = Real 0.0
+  Mesh Update 2 = Real 0.0
 End
 
 Boundary Condition 2
@@ -507,7 +523,13 @@ Boundary Condition 4
   ComputeNormal = Logical False
   Name = "surface"
   Body ID = 2
-  Top Surface = Equals  surfaceDEM1995 ! only needed in initialization step
+  Top Surface = Equals "zs"
+  Mesh Update 3 = Variable zs, Ref Zs
+    Real LUA "tx[0] - tx[1]"
+  
+  Mesh Update 1 = Real 0.0
+  Mesh Update 2 = Real 0.0
+! Top Surface = Equals  surfaceDEM1995 !if you want to test constant geometry
 
 
 ! Referred by: Exported Variable 2 Mask = ...
@@ -518,9 +540,5 @@ Boundary Condition 4
             0.0   272.15
 	  100.0   272.14
          1000.0   263.15
-      End
-  Mesh Update 1 = 0.0
-  Mesh Update 2 = 0.0
-  Mesh Update 3 = Variable Zs, Ref Zs
-    Real lua "tx[0] - tx[1]"
+      End 
 End

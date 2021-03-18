@@ -119,8 +119,6 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-
-
 ! Maps the constant-thickness mesh between given bedrock and surface topology
 Solver 1 
   Exec Solver = "before Timestep"
@@ -138,8 +136,8 @@ Solver 1
 
   ! These are needed to host the variables that are read in
   Variable = -nooutput "DummyMesh"
-  Mesh Velocity Variable = String "mv"
-  !Mesh Velocity Variable = String "Mesh Velocity 3"
+  !Mesh Velocity Variable = String "mv"
+  Mesh Velocity Variable = String "Mesh Velocity 3"
   Mesh Velocity First Zero  = True
   Mesh Update Variable = String "dz"
   !Mesh Update Variable = String "Mesh Update 3"
@@ -249,9 +247,9 @@ Solver 4
 
   Exported Variable 2 = String "Temp Residual"
   Exported Variable 2 DOFs = 1
- Exported Variable 3 = -dofs 1 "dz"
- Exported Variable 4 = -dofs 1 "mv"
-  !Exported Variable 3 = -dofs 3 "Mesh Velocity"
+  Exported Variable 3 = -dofs 1 "dz"
+  !Exported Variable 4 = -dofs 1 "mv"
+  Exported Variable 4 = -dofs 3 "Mesh Velocity"
   !Exported Variable 4 = -dofs 3 "Mesh Update"
   Apply Dirichlet = True
 End
