@@ -196,7 +196,12 @@ Solver 4
   ! Nonlinear System Relaxation Factor = 1.00
   ! Nonlinear System Reset Newton = Logical True
 
-  include linsys.sif
+  !include from linsys directory (chose one)
+  include linsys/block4_idrs.sif
+  !include linsys/gcr.sif
+  !include linsys/mumps.sif
+  !include linsys/block2_boomeramg.sif
+  !include linsys/block2_idrs.sif
 
   ! Convergence on timelevel (not required here)
   !---------------------------------------------
