@@ -1,0 +1,14 @@
+# output files
+*.pvtu
+*.vtu
+*.result
+*.result.*
+*.out
+*.log
+*.pvsm
+*.timings
+# backup files
+*.*~
+\#*
+# partioned mesh
+partitioning.*
