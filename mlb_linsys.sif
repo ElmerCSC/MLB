@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 3
+  Max Output Level = 2
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -196,7 +196,9 @@ Solver 4
   ! Nonlinear System Relaxation Factor = 1.00
   ! Nonlinear System Reset Newton = Logical True
 
-  include linsys.sif
+  !include linsys/block2_boomeramg.sif
+  !include linsys/block4_idrs.sif
+  include linsys/block4_boomeramg.sif
 
   ! Convergence on timelevel (not required here)
   !---------------------------------------------
@@ -217,6 +219,7 @@ End
 
 ! Semilagrangian solver for advection dominated flow
 Solver 5
+  Exec Solver = Never
   Equation = ParticleAdvector
   Procedure = "ParticleAdvector" "ParticleAdvector"
 
