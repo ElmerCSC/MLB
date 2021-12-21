@@ -294,7 +294,8 @@ Solver 6
 
 ! The internal variables for this solver
   Variable 1 = String "Particle Distance"
-  Variable 2 = String "Particle Time Integral"
+  Variable 2 = String "Particle Time"
+  Operator 2 = String "Cumulative"
 
 ! The field variables being advected
   Variable 3 = String "Coordinate 1"
