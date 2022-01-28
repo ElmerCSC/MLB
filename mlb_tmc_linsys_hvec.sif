@@ -66,13 +66,13 @@ Simulation
   ! Internal extrusion parameters, may be altered.
   Extruded Mesh Levels = Integer 9 
   Extruded Max Coordinate = Real 2000		
-
+ 
   ! Coupled iterations between different solvers
   !---------------------------------------------
   Steady State Max Iterations = 20
   Steady State Min Iterations = 1
 
-  Output Intervals = 1
+  Output Intervals = 0
 
   ! usually, Dirichlet BC's are initialized before everything else. Sometimes those 
   ! conditions are dependent on solutions of earlier solvers; next line ensures that
@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 3
+  Max Output Level = 8
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -226,25 +226,31 @@ Solver 5
   Procedure = "HeatSolveVec" "HeatSolver"
   Variable = "Temperature"
 
-  Linear System Solver = Iterative
-  Linear System Iterative Method = BiCGStab
-  Linear System Max Iterations = 500
+!  Linear System Solver = Iterative
+!  Linear System Iterative Method = BiCGStab
+!  Linear System Max Iterations = 500
+  Linear System Solver = Direct 
+  Linear System Direct Method = #directmethod
 
+! It seems that 21 Ip's is sufficient!
   Element = p:1 b:3
   Bubbles in Global System = False
+  Number of Integration Points = Integer 21 ! 21, 28, 44, 64, ...
+
 
   Linear System Convergence Tolerance = 1.0e-8
   Linear System Preconditioning = ILU1
   Linear System Residual Output = 1
 
-  Nonlinear System Max Iterations = 50
+  Nonlinear System Max Iterations = 100
   Nonlinear System Convergence Tolerance  = 1.0e-6
-
 
   Apply Limiter = Logical True
   Limiter Value Tolerance = Real 0.0001
   
+  Vector Assembly = Logical True
 
+  Solver Timing = Logical True
 End
 
 
@@ -346,7 +352,8 @@ Material 1
   !   Real lua "conductivity(tx[0])"
   !  Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
     
-  
+!  Heat Capacity = 140.0
+!  Heat Conductivity = 70.0
  
   !Convection Velocity 1 = Variable Velocity 1
   !   Real lua "tx[0]/yearinsec"

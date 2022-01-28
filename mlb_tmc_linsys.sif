@@ -15,7 +15,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_tmc_vec"
+$name="S_1995_DEMs_tmc"
 #MINH=20.0
 #Tc = -1.0
 #directmethod="mumps" 
@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 3
+  Max Output Level = 8
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -229,7 +229,6 @@ Solver 5
   !------------------------------------------------------------
 !  Before Linsolve = "EliminateDirichlet" "EliminateDirichlet"
   Variable = String "Temp"
-  Variable DOFs = 1
   Stabilize = True
   Optimize Bandwidth = Logical True
   Linear System Solver = "Direct"
@@ -240,7 +239,7 @@ Solver 5
   Linear System Abort Not Converged = False
   Linear System Preconditioning = "ILU1"
   Linear System Residual Output = 0
-  Nonlinear System Convergence Tolerance = 1.0E-07
+  Nonlinear System Convergence Tolerance = 1.0E-06
   Nonlinear System Max Iterations = 100
   !Nonlinear System Relaxation Factor = Real 9.999E-01
   Steady State Convergence Tolerance = 1.0E-03
@@ -256,6 +255,8 @@ Solver 5
   Exported Variable 2 = String "Temp Residual"
   Exported Variable 2 DOFs = 1
   Apply Dirichlet = True
+
+  Solver Timing = Logical True
 End
 
 
