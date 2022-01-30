@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 8
+  Max Output Level = 5
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -346,25 +346,16 @@ Material 1
   Glen Enhancement Factor = Real 1.0
   Relative Temperature = Variable Temp
     Real lua "tx[0] - 273.15"
-  ! heat transfer
-    ! Heat transfer stuff
+  ! Heat transfer stuff
   Temp Heat Capacity = Variable Temp
     Real lua "capacity(tx[0])*yearinsec^(2.0)"
   !  Real lua "capacity(tx[0])*yearinsec^(2.0)"
 
   Temp Heat Conductivity = Variable Temp
     Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
-  !   Real lua "conductivity(tx[0])"
-  !  Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
-    
+
   Temp Upper Limit = Real 273.15 ! we ignore pressure melting point
- 
-  !Convection Velocity 1 = Variable Velocity 1
-  !   Real lua "tx[0]/yearinsec"
-  !Convection Velocity 2 = Variable Velocity 2
-  !   Real lua "tx[0]/yearinsec"
-  !Convection Velocity 3 = Variable Velocity 3
-  !   Real lua "tx[0]/yearinsec"     
+     
 End
 
 Boundary Condition 1

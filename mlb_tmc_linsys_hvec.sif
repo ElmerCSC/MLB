@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 8
+  Max Output Level = 5
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -341,26 +341,16 @@ Material 1
   Glen Enhancement Factor = Real 1.0
   Relative Temperature = Variable Temperature
     Real lua "tx[0] - 273.15"
-  ! heat transfer
-    ! Heat transfer stuff
+  ! Heat transfer stuff
   Heat Capacity = Variable Temperature
     Real lua "capacity(tx[0])*yearinsec^(2.0)"
   !  Real lua "capacity(tx[0])*yearinsec^(2.0)"
 
   Heat Conductivity = Variable Temperature
     Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
-  !   Real lua "conductivity(tx[0])"
-  !  Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
+  
     
-!  Heat Capacity = 140.0
-!  Heat Conductivity = 70.0
- 
-  !Convection Velocity 1 = Variable Velocity 1
-  !   Real lua "tx[0]/yearinsec"
-  !Convection Velocity 2 = Variable Velocity 2
-  !   Real lua "tx[0]/yearinsec"
-  !Convection Velocity 3 = Variable Velocity 3
-  !   Real lua "tx[0]/yearinsec"     
+
 End
 
 Boundary Condition 1
@@ -401,7 +391,6 @@ Boundary Condition 3
 ! Mask for creating the restart fields only where needed
 ! Refererred by: Exported Variable 1 Mask = ...
   Bedrock = Logical True
-  !Flux BC = Logical True
   Heat Flux = Real #0.050 * yearinsec * Pa2MPa
   ! 50 mW m^-2
 
