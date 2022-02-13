@@ -15,12 +15,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_semlagvec"
+$name="S_1995_DEMs"
 
 ! Note that the Mesh2MeshSolver requires solver specific
 ! mesh and hence this must be different than primary mesh,
 ! even symlink is ok.
-$restartdir="outline62_lc50"
+$restartdir="outline62_lc75"
 $restartfile="s_1995_dems_init_2d.result"
 
 $directmethod="mumps" !cPardiso"
@@ -48,7 +48,7 @@ $Tc = -1.0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Partitioned mesh
 Header
-  Mesh DB "." "outline62_lc50"
+  Mesh DB "." "outline62_lc75"
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -177,57 +177,22 @@ Solver 3
 End 
 
 
-! vectorized & threaded version of the Navier-Stokes solver.
 Solver 4
-  Equation = "Stokes-Vec"
-  Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
-  Div-Curl Discretization = Logical False
+  Equation = "Navier-Stokes"
+  Linear System Solver = Direct     
+  Linear System Direct Method = MUMPS!umfpack
+  Nonlinear System Max Iterations = Integer 50
+  Nonlinear System Convergence Tolerance  = 1.0e-5
+  Nonlinear System Newton After Iterations = 5
+  Nonlinear System Newton After Tolerance = 1.0e-02
+  Nonlinear System Relaxation Factor = $2/3
+  Nonlinear System Reset Newton = Logical True
+    
+  Steady State Convergence Tolerance = Real 1.0e-4
 
-  Optimize Bandwidth = Logical True
-  Flow Model = Stokes
   Stabilization Method = String Stabilized
 
-  Linear System Abort Not Converged = Logical False
-  ! Iterative approach:
-  !---------------------
-  Linear System Solver = Iterative
-
-  Linear System Iterative Method = "GCR"
-  Linear System Convergence Tolerance = 1.0E-08
-! Solving for residual allows us to use sloppier tolerances
-! This seems to faster strategy.
-!  Linear System Residual Mode = True
-!  Linear System Convergence Tolerance = 1.0E-04 
-  Linear System Max Iterations = 500
-  Linear System Abort Not Converged = False
-  Linear System Preconditioning = "ILU1"
-  Linear System Residual Output = 10
-
-  ! Direct approach (as alternative to above):
-  !-------------------------------------------
-  !Linear System Solver = Direct
-  !Linear System Direct Method = $directmethod ! Parallel: MUMPS, Serial: UMFPACK
-
-  !Non-linear iteration settings:
-  !------------------------------ 
-  Nonlinear System Max Iterations = 50
-  Nonlinear System Convergence Tolerance  = 1.0e-5
-  Nonlinear System Newton After Iterations = 10
-  Nonlinear System Newton After Tolerance = 1.0e-1
-  Nonlinear System Consistent Norm = True
-  ! Nonlinear System Relaxation Factor = 1.00
-  ! Nonlinear System Reset Newton = Logical True
-
-  ! Convergence on timelevel (not required here)
-  !---------------------------------------------
-  Steady State Convergence Tolerance = Real 1.0e-3
-
-  !Relative Integration Order = -1
-  Number of Integration Points = Integer 44 ! 21, 28, 44, 64, ...
-
-  ! 1st iteration viscosity is constant
-  Constant-Viscosity Start = Logical True
-
+  Flow Model = String "Stokes" ! comment, if you want to have acceleration terms
 ! Some timing info
   Boundary Assembly Timing = Logical True
   Bulk Assembly Timing = Logical True
@@ -237,6 +202,7 @@ End
 
 ! Semilagrangian solver for advection dominated flow
 Solver 5
+  Exec Solver = Never
   Equation = ParticleAdvector
   Procedure = "ParticleAdvector" "ParticleAdvector"
 
@@ -281,7 +247,6 @@ Solver 5
   Result Variable 5 = String "Advected Z"
 
   Solver Timing = True
-  exec solver = never
 End 
 
 
@@ -339,7 +304,7 @@ Material 1
   Viscosity = Real 1.0 
 
   ! Nonnewtonian viscosity
-  Viscosity Model = String Glen
+  Viscosity Model = String "Glen"
   Glen Exponent = Real 3.0
   Critical Shear Rate =  Real 1.0E-10
   ! Paterson value in MPa^-3a^-1
@@ -349,7 +314,7 @@ Material 1
   Activation Energy 1 = Real $Q1    
   Activation Energy 2 = Real $Q2 
   Glen Enhancement Factor = Real 1.0
-  Relative Temperature = Real $Tc
+  Constant Temperature = Real $Tc
 End
 
 Boundary Condition 1

@@ -193,6 +193,7 @@ Solver 4
   Nonlinear System Convergence Tolerance  = 1.0e-5
   Nonlinear System Newton After Iterations = 10
   Nonlinear System Newton After Tolerance = 1.0e-1
+  ! Nonlinear System Consistent Norm = True
   ! Nonlinear System Relaxation Factor = 1.00
   ! Nonlinear System Reset Newton = Logical True
 
@@ -267,7 +268,6 @@ Solver 5
   Result Variable 5 = String "Advected Z"
 
   Solver Timing = True
-  !exec solver = never
 End 
 
 
