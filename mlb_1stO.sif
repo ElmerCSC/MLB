@@ -281,7 +281,6 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
   Active Solvers(4) = 2 3 4 5 
-  Convection = Computed 
 End
 
 
@@ -335,7 +334,6 @@ Material 1
 End
 
 Boundary Condition 1
-  ComputeNormal = Logical False
   Name = "sides1"
   Target Boundaries(1) = 1
   ! no slip
@@ -345,7 +343,6 @@ Boundary Condition 1
 End
 
 Boundary Condition 2
-  ComputeNormal = Logical False
   Name = "sides2"
   Target Boundaries(1)  = 2
   ! no slip
@@ -358,12 +355,17 @@ End
 !! They are automaticaly created in internal extrusion
 !! bedrock:
 Boundary Condition 3
-  ComputeNormal = Logical True
   Name = "bedrock"
 
   ! No-slip velocity conditions
-  Horizontal Velocity 1 = Real 0.0
-  Horizontal Velocity 2 = Real 0.0
+  !Horizontal Velocity 1 = Real 0.0
+  !Horizontal Velocity 2 = Real 0.0
+
+  ! slip relations
+  Weertman Friction Coefficient = Real 0.1
+  Weertman Exponent = Real $1.0/3.0
+  Weertman Linear Velocity = Real 0.00001
+
   Bottom Surface = Equals "bedrockDEM"
 
 ! Mask for creating the restart fields only where needed
