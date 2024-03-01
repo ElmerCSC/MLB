@@ -1,0 +1,17 @@
+  ! 1st iteration viscosity is constant
+  Constant-Viscosity Start = Logical True
+
+  !Non-linear iteration settings:
+  !------------------------------ 
+  Nonlinear System Max Iterations = 50
+  Nonlinear System Convergence Tolerance  = 1.0e-5
+  Nonlinear System Relaxation Factor = $2.0/3.0
+
+!  Viscosity Newton Relaxation Factor = Real $2.0/3.0
+!  Friction Newton Relaxation Factor = Real $2.0/3.0
+
+   Nonlinear System Newton After Iterations = 3
+   Nonlinear System Newton After Tolerance = 0.01
+
+!Nonlinear System Consistent Norm = True
+  !Nonlinear System Reset Newton = Logical True

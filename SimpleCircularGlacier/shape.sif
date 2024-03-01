@@ -1,0 +1,20 @@
+$alfa=0.1
+$h0=100.0
+$dh=90.0
+$rad=1000.0
+
+Boundary Condition 2
+  Bottom Surface = Variable "Coordinate"
+    Real MATC "-alfa*tx(0)"
+End
+
+Boundary Condition 3
+  Top Surface = Variable "Coordinate"
+    Real MATC "h0-dh*(tx(0)^2+tx(1)^2)/rad^2-alfa*tx(0)"
+End
+
+
+Solver 5 :: File Append = True
+
+!Revert all to newtonian viscosity
+!Material 1 :: Viscosity Model = -remove String "Glen"
