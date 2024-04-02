@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 7
+  Max Output Level = 11
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -191,7 +191,10 @@ Solver 4
 ! This is mainly for debugging. It is averaged –(du_x/dx + du_y/dy)
   Exported Variable 4 = duz
   Exported Variable 5 = -dofs 1 "dSdt" 
-  Exported Variable 6 = -dofs 1 "dS" 
+  Exported Variable 6 = -dofs 1 "dS"
+  Exported Variable 7 = -dofs 2 Horizontal Velocity Loads[Force Vector:2]
+  Exported Variable 8 = Horizontal Velocity Weights
+  Exported Variable 89 = Horizontal Velocity Boundary Weights
   Linear System Solver = Iterative
   Linear System Iterative Method = "IDRS"
   Linear System Convergence Tolerance = 1.0e-07
@@ -211,6 +214,12 @@ Solver 4
   Bulk Assembly Timing = Logical True
   Solver Timing = Logical True
   Linear System Timing = Logical True
+
+  Calculate Loads = True
+  Calculate Weights = True
+  Calculate Boundary Weights = True
+
+
 End
 
 ! Semilagrangian solver for advection dominated flow
