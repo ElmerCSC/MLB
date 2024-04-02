@@ -15,7 +15,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_tmc"
+$name="S_1995_DEMs_tmc_loads"
 #MINH=20.0
 #Tc = -1.0
 #directmethod="mumps" 
@@ -72,7 +72,7 @@ Simulation
   Steady State Max Iterations = 20
   Steady State Min Iterations = 1
 
-  Output Intervals = 0
+  Output Intervals = 1
 
   ! usually, Dirichlet BC's are initialized before everything else. Sometimes those 
   ! conditions are dependent on solutions of earlier solvers; next line ensures that
@@ -197,7 +197,7 @@ Solver 4
   ! Nonlinear System Relaxation Factor = 1.00
   ! Nonlinear System Reset Newton = Logical True
 
-  include linsys.sif
+  include linsys/gcr.sif
 
   ! Convergence on timelevel (not required here)
   !---------------------------------------------
@@ -214,6 +214,12 @@ Solver 4
   !Bulk Assembly Timing = Logical True
   !Solver Timing = Logical True
   !Linear System Timing = Logical True
+  Calculate Loads = True
+  !Calculate Weights = True
+  Calculate Boundary Weights = True
+
+  Exported Variable 1 = -dofs 4 Flow Solution Loads
+  Exported Variable 2 = Flow Solution Boundary Weights
 End
 
 !-----------------------------------------------------
@@ -221,42 +227,48 @@ End
 ! as upper limit
 !-----------------------------------------------------
 Solver 5
-!  Exec Solver = "Never"
+ !Exec Solver = "Never"
   Equation = String "Homologous Temperature Equation"
-  Procedure =  File "ElmerIceSolvers" "TemperateIceSolver"
+  Procedure =  File "HeatSolveVec" "HeatSolver"
   ! Comment next line in parallel, as EliminateDirichlet does
   ! not work in parallel
   !------------------------------------------------------------
 !  Before Linsolve = "EliminateDirichlet" "EliminateDirichlet"
-  Variable = String "Temp"
+  Variable = String "Temperature"
+  Variable DOFs = 1
+  Stabilization method = Stabilized
   Stabilize = True
   Optimize Bandwidth = Logical True
-  Linear System Solver = "Direct"
-  Linear System Direct Method = #directmethod
-!  Linear System Iterative Method = "GCR"
-!  Linear System Max Iterations = 500
+ ! Linear System Solver = "Direct"
+ ! Linear System Direct Method = #directsolver
+  Linear System Solver = "Iterative"
+  Linear System Iterative Method = "GCR"
+  Linear System Max Iterations = 500
   Linear System Convergence Tolerance = 1.0E-08
-  Linear System Abort Not Converged = False
+  Linear System Abort Not Converged = True
   Linear System Preconditioning = "ILU1"
-  Linear System Residual Output = 0
-  Nonlinear System Convergence Tolerance = 1.0E-06
-  Nonlinear System Max Iterations = 100
+  Linear System Residual Output = 1
+  Nonlinear System Convergence Tolerance = 1.0E-04
+  Nonlinear System Max Iterations = 50
   !Nonlinear System Relaxation Factor = Real 9.999E-01
   Steady State Convergence Tolerance = 1.0E-03
+  !Steady State Relaxation Factor = Real #1.0/3.0
   ! the contact algorithm (aka Dirichlet algorithm)
   !-----------------------------------------------------
-  !Apply Dirichlet = Logical True
+  Apply Limiter = Logical True
+  Calculate Loads = Logical True
+    Save Limiter = Logical True
+  Calculate Boundary Weights = Logical True
   ! those two variables are needed in order to store
   ! the relative or homologous temperature as well
   ! as the residual
   !-------------------------------------------------
-  Exported Variable 1 = String "Temp Homologous"
-  Exported Variable 1 DOFs = 1
-  Exported Variable 2 = String "Temp Residual"
-  Exported Variable 2 DOFs = 1
-  Apply Dirichlet = True
-
-  Solver Timing = Logical True
+  Exported Variable 1 = -dofs 1 "Relative Temperature"
+  Exported Variable 2 = -dofs 1 "Temperature Loads"
+  Exported Variable 3 = -dofs 1 "Temperature Boundary Weights"
+  Exported Variable 4 = -dofs 1 "Friction Loads"
+  Nonlinear Update Exported Variables = Logical True
+  Update Exported Variables = Logical True
 End
 
 
@@ -292,7 +304,7 @@ Initial Condition 1
   Velocity 1 = 0.0
   Velocity 2 = 0.0
   Velocity 3 = 0.0
-  Temp = Variable Coordinate 3 ! lapserate of -10/1000 C/m
+  Temperature = Variable Coordinate 3 ! lapserate of -10/1000 C/m
       Real
             0.0   272.14
 	  100.0   272.15
@@ -308,14 +320,17 @@ Body Force 1
   Flow BodyForce 1 = 0.0
   Flow BodyForce 2 = 0.0 
   Flow BodyForce 3 = #gravity
-  Temp = Real 273.15
-  Temp Condition =Variable Coordinate 3 
+  Temperature Upper Limit = Real 273.15
+  Temperature = Real 273.15
+  Temperature Condition =Variable Coordinate 3 
       Real
             0.0      -1.0
 	  399.9999   -1.0
 	  400.        1.0
          1000.0       1.0
-      End	 
+      End
+  Relative Temperature = Variable Temperature, Pressure
+     Real Procedure "ElmerIceUSF" "RelativeTemperature" 
   !Variable Coordinate 3
   !  Real lua "settemperate(tx[0])"
 End
@@ -344,17 +359,18 @@ Material 1
   Activation Energy 2 = Real #Q2
   !------------------------------------
   Glen Enhancement Factor = Real 1.0
-  Relative Temperature = Variable Temp
+  Relative Temperature = Variable Temperature
     Real lua "tx[0] - 273.15"
   ! Heat transfer stuff
-  Temp Heat Capacity = Variable Temp
+  Heat Capacity = Variable Temperature
     Real lua "capacity(tx[0])*yearinsec^(2.0)"
   !  Real lua "capacity(tx[0])*yearinsec^(2.0)"
 
-  Temp Heat Conductivity = Variable Temp
+  Heat Conductivity = Variable Temperature
     Real lua "conductivity(tx[0])*yearinsec*Pa2MPa"
-
-  Temp Upper Limit = Real 273.15 ! we ignore pressure melting point
+    
+  Pressure Scaling Factor = Real #1.0/Pa2MPa
+  Temperature Upper Limit = Real 273.15 ! we ignore pressure melting point
      
 End
 
@@ -388,18 +404,32 @@ Boundary Condition 3
   Name = "bedrock"
 
   ! No-slip velocity conditions
+  !Velocity 1 = Real 0.0
+  !Velocity 2 = Real 0.0
+  !Velocity 3 = Real 0.0
+
+  ! slip conditions
+  Normal-Tangential Velocity = True
   Velocity 1 = Real 0.0
-  Velocity 2 = Real 0.0
-  Velocity 3 = Real 0.0
+  Weertman Friction Coefficient = Real 0.1
+  Weertman Exponent = Real $1.0/3.0
+  Weertman Linear Velocity = Real 0.00001
+  Friction Newton Epsilon = Real 1.0E-03
+  Friction Newton Linearization = Logical True
+
+
   Bottom Surface = Equals "bedrockDEM"
 
 ! Mask for creating the restart fields only where needed
 ! Refererred by: Exported Variable 1 Mask = ...
   Bedrock = Logical True
-  Temp Flux BC = Logical True
-  Temp Heat Flux = Real #0.050 * yearinsec * Pa2MPa
+  Temperature Flux BC = Logical True
+  Heat Flux = Real #0.050 * yearinsec * Pa2MPa
   ! 50 mW m^-2
-
+  Friction Loads = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
+    Real Lua "math.abs(-tx[0]*tx[3] - tx[1]*tx[4] - tx[2]*tx[5])"
+  Temperature Load = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
+    Real Lua "math.abs(-tx[0]*tx[3] - tx[1]*tx[4] - tx[2]*tx[5])"
 End
 
 Boundary Condition 4
@@ -410,7 +440,7 @@ Boundary Condition 4
 ! Referred by: Exported Variable 2 Mask = ...
   Surface = Logical True
 
-  Temp = Variable Coordinate 3 ! lapserate of -10/1000 C/m
+  Temperature = Variable Coordinate 3 ! lapserate of -10/1000 C/m
       Real
             0.0   272.15
 	  100.0   272.14
