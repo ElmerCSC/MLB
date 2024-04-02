@@ -83,7 +83,7 @@ Simulation
   ! Output files
   ! ------------
   Post File = $name$.vtu
-  vtu: Save Bulk Only = Logical True
+  !vtu: Save Bulk Only = Logical True
 
   Scalars File = $name$.dat
   scalars: Parallel Reduce = Logical True
@@ -194,7 +194,8 @@ Solver 4
   Exported Variable 6 = -dofs 1 "dS"
   Exported Variable 7 = -dofs 2 Horizontal Velocity Loads[Force Vector:2]
   Exported Variable 8 = Horizontal Velocity Weights
-  Exported Variable 89 = Horizontal Velocity Boundary Weights
+  Exported Variable 9 = Horizontal Velocity Boundary Weights
+  Exported Variable 10 = -dofs 2 Horizontal Velocity BCLoads
   Linear System Solver = Iterative
   Linear System Iterative Method = "IDRS"
   Linear System Convergence Tolerance = 1.0e-07
@@ -380,6 +381,7 @@ Boundary Condition 3
 ! Mask for creating the restart fields only where needed
 ! Refererred by: Exported Variable 1 Mask = ...
   Bedrock = Logical True
+  !Calculate Boundary Weights = True
 End
 
 Boundary Condition 4
