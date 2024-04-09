@@ -68,7 +68,7 @@ Constants
   Undulation Amplitude = Real 0.0
   ! GlaDS
   Latent Heat = Real #Lw
-  Gravity Norm = Real #gravity
+  Gravity Norm = Real #-gravity
   Fresh Water Density = Real #rhow
   Water Density = Real #rhow
   Ice Density = Real #rhoi
@@ -145,7 +145,7 @@ Simulation
   Restart File = "$restartfile$"
   Restart Position = 0
   Restart Before Initial Conditions = Logical True
-  Interpolation Passive Coordinate = Integer 3 
+  !Interpolation Passive Coordinate = Integer 3 
 
   ! how verbose the solver should be
   !  3 = Only warnings
@@ -166,6 +166,7 @@ End
 ! Maps the constant-thickness mesh between given bedrock and surface topology
 Solver 1
   Exec Solver = "before simulation"
+  !Exec Solver = "never"
   Equation = "MapCoordinate"
   Procedure = "StructuredMeshMapper" "StructuredMeshMapper"
 
@@ -183,18 +184,18 @@ Solver 1
   ! These are needed to host the variables that are read in
   Variable = -nooutput "DummyMesh"
 
-  Exported Variable 1 = "bedrockDEM"
+  !Exported Variable 1 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
 
-  Exported Variable 2 = "surfaceDEM1995"
+  !Exported Variable 2 = "surfaceDEM1995"
   !Exported Variable 2 Mask = String "Surface"
 End
 
 Solver 2
  Equation = "partial update"
  Procedure = "MeshSolve" "MeshSolver"
- !Exec Solver = "Before Simulation"
- Exec Solver = Never
+ Exec Solver = "Before Simulation"
+ !Exec Solver = Never
  Variable = -dofs 3 "Partial Vertical MeshUpdate"
  Linear System Solver = Iterative
 
