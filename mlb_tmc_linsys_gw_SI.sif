@@ -15,7 +15,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_tmc_loads_SI"
+$name="S_1995_DEMs_tmc_loads_gw_SI"
 #MINH=20.0
 #Tc = -1.0
 #directmethod="mumps" 
@@ -64,8 +64,22 @@ Simulation
   Simulation Type = "Steady State"             
 
   ! Internal extrusion parameters, may be altered.
-  Extruded Mesh Levels = Integer 9 
-  Extruded Max Coordinate = Real 2000		
+!  Extruded Mesh Levels = Integer 9 
+  Extruded Max Coordinate = Real 1.0		
+
+  Extruded Mesh Levels = Integer 25
+  Extruded BC Layers(2) = Integer 10 15
+  Preserve Baseline = Logical True
+  Extruded Baseline Layer = Integer 3
+  Extruded Mesh Density = Variable Coordinate 1
+    Real
+      0.0 2.0
+      0.39999 0.5
+      0.49999 0.5
+      0.5 0.5
+      1.0 2.0
+    End
+
 
   ! Coupled iterations between different solvers
   !---------------------------------------------
@@ -99,6 +113,8 @@ Simulation
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
   Max Output Level = 5
+
+  
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -165,9 +181,25 @@ Solver 2
   !Exported Variable 2 Mask = String "Surface"
 End
 
+Solver 3
+ Equation = "partial update"
+ Procedure = "MeshSolve" "MeshSolver"
+ Exec Solver = "Before Simulation"
+ Variable = -dofs 3 "Partial Vertical MeshUpdate"
+ Linear System Solver = Iterative
+
+ Linear System Iterative Method = BiCGStabL
+ Linear System Preconditioning = none
+ !ILU1
+ Linear System Max Iterations = 500
+ Linear System Convergence Tolerance = 1.0e-12
+ Linear System Residual Output = 50
+
+ Steady State Convergence Tolerance = 1.0e-5
+End
 
 ! Computes height and depth assuming an extruded mesh.
-Solver 3 
+Solver 4 
   Exec Solver = "before simulation" 
   Equation = "HeightDepth"
   Procedure = "StructuredProjectToPlane" "StructuredProjectToPlane"
@@ -178,7 +210,7 @@ End
 
 
 ! vectorized & threaded version of the Navier-Stokes solver.
-Solver 4
+Solver 5
   !Exec Solver = "Never"
   Equation = "Stokes-Vec"
   Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
@@ -194,8 +226,8 @@ Solver 4
   Nonlinear System Convergence Tolerance  = 1.0e-5
   Nonlinear System Newton After Iterations = 10
   Nonlinear System Newton After Tolerance = 1.0e-1
-  ! Nonlinear System Relaxation Factor = 1.00
-  ! Nonlinear System Reset Newton = Logical True
+  Nonlinear System Relaxation Factor = #2/3
+  Nonlinear System Reset Newton = Logical True
 
   include linsys/gcr.sif
 
@@ -204,7 +236,7 @@ Solver 4
   Steady State Convergence Tolerance = Real 1.0e-3
 
   !Relative Integration Order = -1
-  Number of Integration Points = Integer 44 ! 21, 28, 44, 64, ...
+  Number of Integration Points = Integer 21 ! 21, 28, 44, 64, ...
 
   ! 1st iteration viscosity is constant
   Constant-Viscosity Start = Logical True
@@ -226,7 +258,7 @@ End
 ! heat transfer limited by the pressure melting point
 ! as upper limit
 !-----------------------------------------------------
-Solver 5
+Solver 6
   !Exec Solver = "Never"
   Equation = String "Homologous Temperature Equation"
   Procedure =  File "HeatSolveVec" "HeatSolver"
@@ -249,8 +281,9 @@ Solver 5
   Linear System Abort Not Converged = True
   Linear System Preconditioning = "ILU1"
   Linear System Residual Output = 1
-  Nonlinear System Convergence Tolerance = 1.0E-04
+  Nonlinear System Convergence Tolerance = 1.0E-06
   Nonlinear System Max Iterations = 50
+  Nonlinear System Min Iterations = 2
   !Nonlinear System Relaxation Factor = Real 9.999E-01
   Steady State Convergence Tolerance = 1.0E-03
   !Steady State Relaxation Factor = Real #1.0/3.0
@@ -258,7 +291,7 @@ Solver 5
   !-----------------------------------------------------
   Apply Limiter = Logical True
   Calculate Loads = Logical True
-    Save Limiter = Logical True
+  Save Limiter = Logical True
   Calculate Boundary Weights = Logical True
   ! those two variables are needed in order to store
   ! the relative or homologous temperature as well
@@ -272,18 +305,29 @@ Solver 5
   Update Exported Variables = Logical True
 End
 
-
-
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! BODIES (i.e., domains to compute on)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 Body 1
-  Name = "glacier"
+  Name= "bedrock"
   Equation = 1
   Material = 1
+  Initial Condition = 1
+  Body Force = 1
+End
+
+Body 2
+  Name= "sediment"
+  Equation = 1
+  Material = 2
+  Initial Condition = 1
+  Body Force = 1
+End
+
+Body 3
+  Name = "glacier"
+  Equation = 2
+  Material = 3
   Body Force = 1
   Initial Condition = 1
 End
@@ -292,7 +336,13 @@ End
 ! EQUATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
-  Active Solvers(5) = 1 2 3 4 5
+  Name = "bedrock equations"
+  Active Solvers(4) =  1 2 3 4
+  Convection = "none"
+End
+
+Equation 2
+  Active Solvers(6) = 1 2 3 4 5 6
   Convection = "Computed"
   Flow Solution Name = String "Flow Solution"
 End
@@ -330,8 +380,10 @@ Body Force 1
 	  400.        1.0
          1000.0       1.0
       End
-  Relative Temperature = Variable Temperature, Pressure
-     Real Procedure "ElmerIceUSF" "RelativeTemperature" 
+  Relative Temperature = Variable Temperature
+     Real Lua "min(tx[0] - 273.15, 0.0)"
+  !Relative Temperature = Variable Temperature, Pressure
+  !   Real Procedure "ElmerIceUSF" "RelativeTemperature" 
   !Variable Coordinate 3
   !  Real lua "settemperate(tx[0])"
 End
@@ -340,6 +392,23 @@ End
 ! MATERIAL
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Material 1
+  Name = "sediment material"
+  Mesh Elastic Modulus = Real 100.0
+  Mesh Poisson Ratio = Real 0.0
+
+  Viscosity = 10.0
+  Density = 3000.0
+End
+Material 2
+  Name = "sediment material"
+  Mesh Elastic Modulus = Real 100.0
+  Mesh Poisson Ratio = Real 0.0
+
+  Viscosity = 10.0
+  Density = 3000.0
+End
+
+Material 3
   Name = "Ice"
   Density = Real #rhoi
 
@@ -374,10 +443,12 @@ Material 1
   Temperature Upper Limit = Real 273.15 ! we ignore pressure melting point
      
 End
-
+!---------------------------------------------------
+!---------------- BOUNDARY CONDITIONS --------------
+!---------------------------------------------------
 Boundary Condition 1
   ComputeNormal = Logical False
-  Name = "sides1"
+  Name = "sideline"
   Target Boundaries(1) = 1
   ! no slip
   !-------------------------
@@ -388,7 +459,7 @@ End
 
 Boundary Condition 2
   ComputeNormal = Logical False
-  Name = "sides2"
+  Name = "sidesline2"
   Target Boundaries(1)  = 2
   ! no slip
   !-------------------------
@@ -397,10 +468,82 @@ Boundary Condition 2
   Velocity 3 = 0
 End
 
+Boundary Condition 3
+  Name="side rock1"
+  Target Boundaries(1) = 3
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0 
+End
+
+Boundary Condition 4
+  Name="side rock2"
+  Target Boundaries(1) = 4
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0 
+End
+Boundary Condition 5
+  Name="side sediment1"
+  Target Boundaries(1) = 5
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0 
+End
+
+Boundary Condition 6
+  Name="side sediment2"
+  Target Boundaries(1) = 6
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0 
+End
+
+Boundary Condition 7
+  ComputeNormal = Logical False
+  Name = "side ice1"
+  Target Boundaries(1) = 7
+  ! no slip
+  !-------------------------
+  Velocity 1 = 0
+  Velocity 2 = 0
+  Velocity 3 = 0
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+  Partial Vertical MeshUpdate 3 = Real 0.0  
+End
+
+Boundary Condition 8
+  ComputeNormal = Logical False
+  Name = "side ice2"
+  Target Boundaries(1)  = 8
+  ! no slip
+  !-------------------------
+  Velocity 1 = 0
+  Velocity 2 = 0
+  Velocity 3 = 0
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+  Partial Vertical MeshUpdate 3 = Real 0.0  
+End
+
 !! DON'T CHANGE ORDER OF NEXT 2 BC's!
 !! They are automaticaly created in internal extrusion
 !! bedrock:
-Boundary Condition 3
+Boundary Condition 9
+  Name = "bedrock lower"
+  !Heat Flux = Real 0.05
+  Permafrost Target Body = Integer 1
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+  Partial Vertical MeshUpdate 3 = Real 0.0
+  Bottom Surface = Variable bedrockDEM
+    Real Lua "tx[0] - 100.0"
+End
+Boundary Condition  10
+  Name = "rock - sediment"
+  Partial Vertical MeshUpdate 3 = Variable Coordinate 3, bedrockDEM
+     Real Lua "tx[1] - tx[0] - 10.0"
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+End
+Boundary Condition 11
   ComputeNormal = Logical True
   Name = "bedrock"
 
@@ -417,9 +560,12 @@ Boundary Condition 3
   Weertman Linear Velocity = Real 1.0E-10
   Friction Newton Epsilon = Real 1.0E-03
   Friction Newton Linearization = Logical True
+  
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+  Partial Vertical MeshUpdate 3 = Real 0.0
 
-
-  Bottom Surface = Equals "bedrockDEM"
+  Mid Surface = Equals "bedrockDEM"
 
 ! Mask for creating the restart fields only where needed
 ! Refererred by: Exported Variable 1 Mask = ...
@@ -435,18 +581,21 @@ Boundary Condition 3
   Calculate Temperature Boundary Weights = Logical True
 End
 
-Boundary Condition 4
+Boundary Condition 12
   ComputeNormal = Logical False
   Name = "surface"
   Top Surface = Equals "surfaceDEM1995"
 
 ! Referred by: Exported Variable 2 Mask = ...
   Surface = Logical True
-Target Boundaries(1) = 4
+  !Target Boundaries(1) = 4
   Temperature = Variable Coordinate 3 ! lapserate of -10/1000 C/m
       Real
             0.0   272.15
 	  100.0   272.14
          1000.0   263.15
-      End 
+      End
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+  Partial Vertical MeshUpdate 3 = Real 0.0
 End
