@@ -15,11 +15,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-$name="S_1995_DEMs_glads-init_gw_SI_hp0_s05"
+$name="S_1995_DEMs_gw_glads_init"
 $meshfile="outline62_lc75"
+$element="p:1 b:1"
 #MINH=20.0
 #Tc = -1.0
-#directmethod="UMFPACK" 
+
+#directmethod="mumps" 
 !---LUA BEGIN
 ! assert(loadfile('./icematerial_SI.lua'))()
 ! assert(loadfile('./glads.lua'))()
@@ -32,7 +34,8 @@ $meshfile="outline62_lc75"
 ! mesh and hence this must be different than primary mesh,
 ! even symlink is ok.
 $restartdir="outline62_lc75"
-$restartfile="s_1995_dems_tmc_loads_gw_si.result"
+$restartfile="S_1995_DEMs_gw_tmc_init.result"
+
 
 
 
@@ -89,6 +92,25 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Simulation
   Coordinate System  = "Cartesian 3D"
+  Simulation Type = "Steady State"             
+
+  ! Internal extrusion parameters, may be altered.
+!  Extruded Mesh Levels = Integer 9 
+  Extruded Max Coordinate = Real 1.0		
+
+  Extruded Mesh Levels = Integer 25
+  Extruded BC Layers(2) = Integer 12 15
+  Preserve Baseline = Logical True
+  Extruded Baseline Layer = Integer 3
+  Extruded Mesh Density = Variable Coordinate 1
+    Real
+      0.0 2.0
+      0.39999 0.5
+      0.49999 0.3
+      0.5 0.3
+      1.0 2.0
+    End
+    
   Simulation Type = "Transient"
   
   Timestepping Method = "bdf"
@@ -98,31 +120,11 @@ Simulation
   Output Intervals(1) = #OutPut
   Timestep Size = Variable Timestep
      Real LUA "settimestepsize(tx[0])"
-     
-  ! Internal extrusion parameters, may be altered.
-!  Extruded Mesh Levels = Integer 9 
-  Extruded Max Coordinate = Real 1.0		
-
-  Extruded Mesh Levels = Integer 25
-  Extruded BC Layers(2) = Integer 10 15
-  Preserve Baseline = Logical True
-  Extruded Baseline Layer = Integer 3
-  Extruded Mesh Density = Variable Coordinate 1
-    Real
-      0.0 2.0
-      0.39999 0.5
-      0.49999 0.5
-      0.5 0.5
-      1.0 2.0
-    End
-
 
   ! Coupled iterations between different solvers
   !---------------------------------------------
   Steady State Max Iterations = 1
   Steady State Min Iterations = 1
-
-  Output Intervals = 1
 
   ! usually, Dirichlet BC's are initialized before everything else. Sometimes those 
   ! conditions are dependent on solutions of earlier solvers; next line ensures that
@@ -140,9 +142,7 @@ Simulation
 
   Output File = "$name$.result"
 
-  !
-  Restart File = "$restartfile$"
-  Restart Position = 0
+  ! Restart happens in Solver 1
   Restart Before Initial Conditions = Logical True
   !Interpolation Passive Coordinate = Integer 3 
 
@@ -151,8 +151,41 @@ Simulation
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
   Max Output Level = 5
-
   
+  Output Variable 1 = bedrockdem
+  Output Variable 2 = surfacedem1995
+  Output Variable 3 = velocity
+  Output Variable 4 = pressure
+  Output Variable 5 = flow solution loads
+  Output Variable 6 = temperature
+  Output Variable 7 = temperature boundary weights
+  Output Variable 8 = temperature loads
+  Output Variable 9 = relative temperature
+  Output Variable 10 = temperature contact active
+  Output Variable 11 = glaciated
+  Output Variable 12 = depth
+  Output Variable 13 = height
+  Output Variable 14 = sheet thickness
+  Output Variable 15 = water pressure
+  Output Variable 16 = effective pressure
+
+  Restart Variable 1 = bedrockdem
+  Restart Variable 2 = surfacedem1995
+  Restart Variable 3 = velocity
+  Restart Variable 4 = pressure
+  Restart Variable 5 = flow solution loads
+  Restart Variable 6 = temperature
+  Restart Variable 7 = temperature boundary weights
+  Restart Variable 8 = temperature loads
+  Restart Variable 9 = relative temperature
+  Restart Variable 10 = temperature contact active
+  Restart Variable 11 = glaciated
+  Restart Variable 12 = depth
+  Restart Variable 13 = height
+
+  Restart File = File "$restartfile$"
+  Restart Position = 0
+  Restart Time = 0.0
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -165,11 +198,8 @@ End
 ! Maps the constant-thickness mesh between given bedrock and surface topology
 Solver 1
   Exec Solver = "before simulation"
-  !Exec Solver = "never"
   Equation = "MapCoordinate"
   Procedure = "StructuredMeshMapper" "StructuredMeshMapper"
-
-  Variable = -dofs 1 -nooutput DymmyVarEntry
 
   Active Coordinate = Integer 3
 
@@ -183,18 +213,18 @@ Solver 1
   ! These are needed to host the variables that are read in
   Variable = -nooutput "DummyMesh"
 
-  !Exported Variable 1 = "bedrockDEM"
+  Exported Variable 1 = "bedrockDEM"
   !Exported Variable 1 Mask = String "BedRock"
 
-  !Exported Variable 2 = "surfaceDEM1995"
+  Exported Variable 2 = "surfaceDEM1995"
   !Exported Variable 2 Mask = String "Surface"
+  !Bubbles in global system = False
 End
 
 Solver 2
  Equation = "partial update"
  Procedure = "MeshSolve" "MeshSolver"
  Exec Solver = "Before Simulation"
- !Exec Solver = Never
  Variable = -dofs 3 "Partial Vertical MeshUpdate"
  Linear System Solver = Iterative
 
@@ -202,32 +232,34 @@ Solver 2
  Linear System Preconditioning = none
  !ILU1
  Linear System Max Iterations = 500
- !Linear System Convergence Tolerance = 1.0e-12
- Linear System Convergence Tolerance = 1.0E-08
+ Linear System Convergence Tolerance = 1.0e-12
  Linear System Residual Output = 50
 
  Steady State Convergence Tolerance = 1.0e-5
+ !Bubbles in global system = False
 End
 
 ! Computes height and depth assuming an extruded mesh.
 Solver 3 
-  !Exec Solver = "before simulation"
-  Exec Solver = "Never"
+  Exec Solver = "before simulation" 
   Equation = "HeightDepth"
   Procedure = "StructuredProjectToPlane" "StructuredProjectToPlane"
   Active Coordinate = Integer 3
   Operator 1 = depth
   Operator 2 = height
   Dot Product Tolerance = 1.0e-3
+  !Bubbles in global system = False
 End 
 
 
 ! vectorized & threaded version of the Navier-Stokes solver.
 Solver 4
-  Exec Solver = "Never"
+  !Exec Solver = "Never"
   Equation = "Stokes-Vec"
   Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
   Div-Curl Discretization = Logical False
+
+  !Variable = -dofs 4 "Flow Solution" [Velocity:3 Pressure:1]
 
   Optimize Bandwidth = Logical True
   Flow Model = Stokes
@@ -235,9 +267,9 @@ Solver 4
 
   !Non-linear iteration settings:
   !------------------------------ 
-  Nonlinear System Max Iterations = 50
+  Nonlinear System Max Iterations = 1
   Nonlinear System Convergence Tolerance  = 1.0e-5
-  Nonlinear System Newton After Iterations = 10
+  Nonlinear System Newton After Iterations = 5
   Nonlinear System Newton After Tolerance = 1.0e-1
   Nonlinear System Relaxation Factor = #2/3
   Nonlinear System Reset Newton = Logical True
@@ -254,17 +286,10 @@ Solver 4
   ! 1st iteration viscosity is constant
   Constant-Viscosity Start = Logical True
 
-! Some timing info
-  !Boundary Assembly Timing = Logical True
-  !Bulk Assembly Timing = Logical True
-  !Solver Timing = Logical True
-  !Linear System Timing = Logical True
   Calculate Loads = True
-  !Calculate Weights = True
-  Calculate Boundary Weights = True
 
-  Exported Variable 1 = -dofs 4 Flow Solution Loads
-  Exported Variable 2 = Flow Solution Boundary Weights
+  !Bubbles in global system = False
+  Exported Variable 1 = -dofs 4 "Flow Solution Loads" 
 End
 
 !-----------------------------------------------------
@@ -272,7 +297,7 @@ End
 ! as upper limit
 !-----------------------------------------------------
 Solver 5
-  Exec Solver = "Never"
+  !Exec Solver = "Never"
   Equation = String "Homologous Temperature Equation"
   Procedure =  File "HeatSolveVec" "HeatSolver"
   ! Comment next line in parallel, as EliminateDirichlet does
@@ -311,16 +336,15 @@ Solver 5
   ! as the residual
   !-------------------------------------------------
   Exported Variable 1 = -dofs 1 "Relative Temperature"
-!  Exported Variable 2 = -dofs 1 "Temperature Loads"
-!  Exported Variable 3 = -dofs 1 "Temperature Boundary Weights"
   Exported Variable 2 = -dofs 1 "Friction Loads"
   Nonlinear Update Exported Variables = Logical True
   Update Exported Variables = Logical True
+  !Bubbles in global system = False
 End
 
 Solver 6
   Equation = "GlaDS Coupled sheet"
-  !Exec Solver = never
+  !Exec Solver = "never"
   Procedure = "ElmerIceSolvers" "GlaDSCoupledSolver"
   Variable = -dofs 1 "Hydraulic Potential"
 
@@ -342,7 +366,7 @@ Solver 6
   Exported Variable 5 = -dofs 1 "Effective Pressure"
   Exported Variable 6 = -dofs 2 "Sheet Discharge"
   Exported Variable 7 = -dofs 1 "Sheet Storage"
-  Exported Variable 8 = -dofs 1 "Flux from Moulins"
+  !Exported Variable 8 = -dofs 1 "Flux from Moulins"
 
   Linear System Solver = Direct     
 
@@ -358,27 +382,31 @@ Solver 6
   Coupled Convergence Tolerance = Real 1.0e-3
 
   Steady State Convergence Tolerance = 1.0e-03
+  !Bubbles in global system = False
 End
 
 Solver 7
   ! Just here to declare the variable Sheet Thickness
   Equation = "GlaDS Thickness sheet"
-  !Exec Solver = Before simulation
+  Exec Solver = "Before timestep"
+  !Exec Solver = "Never"
   Procedure = "ElmerIceSolvers" "GlaDSsheetThickDummy"
   Variable = -dofs 1 "Sheet Thickness"
   Exported Variable 1 = -dofs 1 "Meltrate"
-  !Exported Variable 1 = -dofs 1 "Bedrock"
+
   Nonlinear Update Exported Variables = Logical True
   Update Exported Variables = Logical True
+
+  !Bubbles in global system = False
 End
 
 Solver 8
   ! Just here for output and declare the Channel Area variable
   ! It is executed simultaneously to saving
-  Exec Solver = After Timestep
-  !Exec Solver = never
+  !Exec Solver = After Timestep
+  !Exec Solver = "never"
   Equation = "GlaDS Channel OutPut"
-  !Exec Interval = #OutPut
+  Exec Interval = #OutPut
   Procedure = "ElmerIceSolvers" "GlaDSchannelOut"
   Variable = -dofs 1 "Channel Area"
 ! Define that the variable is define on the edges only
@@ -391,6 +419,96 @@ Solver 8
 
   Channels OutPut Directory Name = File "$meshfile$/channels"
   Channels OutPut File Name = String "$name$_channels"
+  !Bubbles in global system = False
+End
+!==============================================================================
+! /// Heat transfer in bedrock ///
+!==============================================================================
+!==============================================================================
+! /// Initialize porosity accordin to material file  ///
+!==============================================================================
+Solver 9
+  Equation = "Porosity Initialization"
+  Exec Solver = "Before Simulation"  
+  Procedure = "ElmerIceSolvers" "PorosityInit"
+  Porosity Variable = String "Porosity"
+  Nodal Porosity = Logical True
+  Bubbles in global system = False
+  Element = $element  
+End
+
+Solver 10
+  Equation = "Permafrost"
+  Exec Solver = "Never"
+  Element = $element ! has to be same as all other permafrost solvers (IP variables!)
+  !Exec Solver = "before simulation"
+  !Exec Solver = "never"
+  !Variable = "DummyTemp"
+  Variable = -dofs 1 "PFTemp"
+  Procedure = "ElmerIceSolvers" "PermaFrostHeatTransfer"
+  !Linear System Solver = Direct
+  !Linear System Direct Method = #directmethod
+  Output Xi = Logical True
+  
+  Linear System Solver = Iterative
+  Linear System Iterative Method  = IDRS
+  Linear System Max Iterations = 5000
+  Linear System Preconditioning = "ILU2"
+  Nonlinear System Convergence Tolerance = 1.0e-06
+  Nonlinear System Max Iterations = 1
+  Nonlinear System Relaxation Factor = $2.0/3.0
+  Linear System Convergence Tolerance = 1e-8
+  Steady State Convergence Tolerance = 1e-03
+  !Exported Variable 1 = -dofs 1 -IP "Xi"
+  Exported Variable 1 = -dofs 1 "Salinity"
+  Exported Variable 2 = -dofs 1 "Porosity"
+  !Exported variable 3 = -dofs 1 "PFTemp Loads"
+  Calculate Loads = True
+  Initialize Steady State = Logical True
+  !Groundwater Flux Variable = String "Groundwater Flux"
+  Bubbles in global system = False
+  Computed Groundwater Flux = Logical True
+End
+
+!==============================================================================
+! /// Groundwater flow ///
+!==============================================================================
+Solver 11
+  Equation = "Darcy"
+  !Exec Solver = "Before Timestep"
+  Exec Solver = "Never"
+  Element = $element ! has to be same as all other permafrost solvers (IP variables!)
+  Variable = -dofs 1 "GWPressure"
+  Procedure = "ElmerIceSolvers" "PermafrostGroundwaterFlow"  
+  !Linear System Solver = Direct
+  !Linear System Direct Method = #directmethod
+  Linear System Solver = Iterative
+  Linear System Iterative Method  = IDRS
+  Linear System Preconditioning = "ILU2"
+  Linear System Max Iterations = 5000
+  Linear System Convergence Tolerance = 1e-09
+  Nonlinear System Max Iterations = 30
+  Nonlinear System Convergence Tolerance = 1e-05
+  Steady State Convergence Tolerance = 1e-02
+  Linear System Nullify Guess = Logical True
+  Initialize Steady State = Logical True
+  !Linear System Save = True
+  !Linear System Save Continuous Numbering = Logical True
+  !Exported Variable 1 = -dofs 1 Reference Pressure 
+  Compute Freshwater Head = Logical True
+  !Ground Stress Invariant Variable Name = String "Stress Invariant"
+  !Ground Deformation Variable Name = String "bedrock deformation"
+  !Steady State Relaxation Factor = $1/10
+  Exported Variable 1 = -dofs 3 -IP "Groundwater Flux"
+  !Project Type 1 = String "nodal"
+  !Project Variable 1 = String "Nodal Groundwater Flux"
+  Exported Variable 2 = -dofs 1 "Reference GWPressure"
+  Exported Variable 3 = -dofs 1 -IP "Reference Offset Density"
+  Exported Variable 4 = -dofs 1 -IP "Freshwater Head"
+  Exported Variable 5 = -dofs 3 "Nodal Groundwater Flux"
+  !Exported Variable 7 = -dofs 1 -IP "Xi"
+  Bubbles in global system = False
+  Update Exported Variables = Logical True
 End
 
 
@@ -401,7 +519,7 @@ Body 1
   Name= "bedrock"
   Equation = 1
   Material = 1
-  !Initial Condition = 1
+  Initial Condition = 1
   Body Force = 1
 End
 
@@ -409,7 +527,7 @@ Body 2
   Name= "sediment"
   Equation = 1
   Material = 2
-  !Initial Condition = 1
+  Initial Condition = 1
   Body Force = 1
 End
 
@@ -417,16 +535,16 @@ Body 3
   Name = "glacier"
   Equation = 2
   Material = 3
-  Body Force = 1
-  Initial Condition = 1
+  Body Force = 2
+  Initial Condition = 2
 End
 
 Body 4
   Name = "bedrock interface"
   Equation = 3
   Material = 3
-  Body Force = 1
-  Initial Condition = 1
+  Body Force = 2
+  Initial Condition = 2
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -434,18 +552,20 @@ End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Equation 1
   Name = "bedrock equations"
-  Active Solvers(3) =  1 2 3 
+  Active Solvers(5) =  1 2 9 10 11
   Convection = "none"
 End
 
 Equation 2
-  Active Solvers(5) = 1 2 3 4 5 
+  Name = "ice equations"
+  Active Solvers(5) = 1 2 3 4 5
   Convection = "Computed"
   Flow Solution Name = String "Flow Solution"
 End
 
 Equation 3
-  Active Solvers(3) = 6 7 8
+  Name = "interface equations"
+  Active Solvers(3) =  6 7 8
   Convection = "Computed"
   Flow Solution Name = String "Flow Solution"
 End
@@ -454,20 +574,34 @@ End
 ! INITIAL CONDITIONS
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Initial Condition 1
+ PFTemp = Real 276.15
+ Salinity = Real 0.0
+ GWPressure = Real 0.0
+! GWPressure = Variable depth
+!     Real LUA "-gravity*rhow*tx[0] + p0"
+! Sheet Thickness = Real #Hs
+End
+
+Initial Condition 2
   ! Initial velocity is not really needed when using newtonian start
-  Sheet Thickness = Real #Hs
-  Hydraulic Potential = Variable Coordinate 3
-     Real Lua "-rhow*gravity*tx[0]"
-  !Partial Vertical MeshUpdate 1 = Real 0.0
-  !Partial Vertical MeshUpdate 2 = Real 0.0
-  !Partial Vertical MeshUpdate 3 = Real 0.0  
+   Sheet Thickness = Real #Hs
 End
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! BODY FORCE
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Body Force 1
+Body Force  1
+  Stress Bodyforce at IP = Logical True
+  Stress Bodyforce 2 = Variable PFTemp, GWPressure, Porosity, Salinity, Xi
+    Real Procedure "ElmerIceSolvers" "GetElasticityForce"
+  Stress Bodyforce 1 = 0.0
+  Stress Pressure = Equals GWPressure
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
+End
+
+Body Force 2
   Flow BodyForce 1 = 0.0
   Flow BodyForce 2 = 0.0 
   Flow BodyForce 3 = #gravity
@@ -482,12 +616,9 @@ Body Force 1
       End
   Relative Temperature = Variable Temperature
      Real Lua "min(tx[0] - 273.15, 0.0)"
-  !Relative Temperature = Variable Temperature, Pressure
-  !   Real Procedure "ElmerIceUSF" "RelativeTemperature" 
-  !Variable Coordinate 3
-  !  Real lua "settemperate(tx[0])"
-  !Partial Vertical MeshUpdate 1 = Real 0.0
-  !Partial Vertical MeshUpdate 2 = Real 0.0
+
+  Partial Vertical MeshUpdate 1 = Real 0.0
+  Partial Vertical MeshUpdate 2 = Real 0.0
   Channel Area = Real 0.0
   Channel Area Condition = Opposes glaciated
   Channel Flux = Real 0.0
@@ -504,20 +635,33 @@ Body Force 1
 
   Hydraulic Potential Volume Source = Variable "temperature contact load", "temperature boundary weights", "temperature contact active"
   Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + Source*tx[2]"
-   !Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + 2.0/yearinsec"
-  !Meltrate =  Variable "temperature contact load", "temperature boundary weights", "depth"
-   !Real LUA "getmeltrate(tx[0],tx[1],IfThenElse(tx[2]>= MINH,1,-1))"
    Meltrate =  Variable "temperature contact load", "temperature boundary weights", "temperature contact active"
        Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + Source*tx[2]"
-  !   Hydraulic Potential Volume Source = Variable "Temp Residual","Temp Boundary Weights", "GroundedMask"
-  !   Real LUA "getmeltrate(tx[0],tx[1],tx[2])"
-End
+ End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! MATERIAL
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Material 1
   Name = "rock material"
+
+  Rock Material File = File "./toymodel.db"
+  Rock Material ID = Integer 2
+  Hydraulic Conductivity Limit = Real 1.0E-14
+  Swap Tensor = Logical True
+  Conductivity Arithmetic Mean Weight = Real 0.5
+  Radiogenic Reference Depth = Real 10000.0
+  Youngs Modulus = Variable Porosity, Xi
+     Real Procedure "ElmerIceSolvers" "GetEG"
+  Poisson Ratio =   Variable Porosity, Xi
+     Real  Procedure "ElmerIceSolvers" "GetNuG"
+  Youngs Modulus at IP = Logical True
+  Poisson Ratio at IP = Logical True
+  Porosity Variable = Equals "Porosity"
+  Temperature Variable = Equals "PFTemp"
+  Salinity Variable = Equals "Salinity" 
+  Pressure Variable = Equals "GWPressure"
+  
   Mesh Elastic Modulus = Real 100.0
   Mesh Poisson Ratio = Real 0.0
 
@@ -526,6 +670,27 @@ Material 1
 End
 Material 2
   Name = "sediment material"
+
+  Rock Material File = File "./toymodel.db"
+  Rock Material ID = Integer 1
+  Hydraulic Conductivity Limit = Real 1.0E-14
+  Swap Tensor = Logical True
+  Conductivity Arithmetic Mean Weight = Real 0.5
+  Radiogenic Reference Depth = Real 10000.0
+  Youngs Modulus = Variable Porosity, Xi
+     Real Procedure "ElmerIceSolvers" "GetEG"
+  Poisson Ratio =   Variable Porosity, Xi
+     Real  Procedure "ElmerIceSolvers" "GetNuG"
+  Youngs Modulus at IP = Logical True
+  Poisson Ratio at IP = Logical True
+  Porosity Variable = Equals "Porosity"
+  Temperature Variable = Equals "PFTemp"
+  Salinity Variable = Equals "Salinity" 
+  Pressure Variable = Equals "GWPressure"
+  Mesh Elastic Modulus = Real 100.0
+  Mesh Poisson Ratio = Real 0.0
+
+
   Mesh Elastic Modulus = Real 100.0
   Mesh Poisson Ratio = Real 0.0
 
@@ -743,11 +908,13 @@ Boundary Condition 9
   Partial Vertical MeshUpdate 3 = Real 0.0
   Bottom Surface = Variable bedrockDEM
     Real Lua "tx[0] - 100.0"
+
+  Heat Flux = Real #0.050
 End
 Boundary Condition  10
   Name = "rock - sediment"
   Partial Vertical MeshUpdate 3 = Variable Coordinate 3, bedrockDEM
-     Real Lua "tx[1] - tx[0] - 10.0"
+     Real Lua "tx[1] - tx[0] - sedimentheight"
   Partial Vertical MeshUpdate 1 = Real 0.0
   Partial Vertical MeshUpdate 2 = Real 0.0
 End
@@ -783,10 +950,9 @@ Boundary Condition 11
   Temperature Flux BC = Logical True
   Heat Flux = Real #0.050 
   ! 50 mW m^-2
-  Friction Loads = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
+  Friction Loads = Variable "Flow Solution Loads 1",  "Flow Solution Loads 2",  "Flow Solution Loads 3", Velocity 1, Velocity 2, Velocity 3
     Real Lua "frictionloads(tx[0],tx[1],tx[2],tx[3],tx[4],tx[5])"
-  !Target Boundaries(1) = 3
-  Temperature Load = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
+  Temperature Load = Variable "Flow Solution Loads 1",  "Flow Solution Loads 2",  "Flow Solution Loads 3", Velocity 1, Velocity 2, Velocity 3
     Real Lua "frictionloads(tx[0],tx[1],tx[2],tx[3],tx[4],tx[5])"
   Calculate Temperature Boundary Weights = Logical True
 End
@@ -801,7 +967,7 @@ Boundary Condition 12
   !Target Boundaries(1) = 4
   Temperature = Variable Coordinate 3 ! lapserate of -10/1000 C/m
       Real
-            0.0   272.15
+            0.0   273.15
 	  100.0   272.14
          1000.0   263.15
       End
