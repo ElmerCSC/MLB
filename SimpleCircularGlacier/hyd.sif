@@ -15,6 +15,7 @@ include defs.sif
 
 Header
   Mesh DB "." "circle"
+!  Mesh DB "." "deform"
   Results Directory "results"
 End
 
@@ -26,7 +27,7 @@ Simulation
   Simulation Type = "Steady State"             
 
   ! Internal extrusion parameters, may be altered.
-  Extruded Mesh Levels = Integer 6 !$nlayers
+  Extruded Mesh Levels = Integer $nlayers
   Extruded Max Coordinate = Real 100		
 
   ! Coupled iterations between different solvers
@@ -39,7 +40,11 @@ Simulation
   Post File = $name$.vtu
   vtu: Save Bulk Only = Logical True
 
-  Max Output Level = 5
+  Max Output Level = 7
+
+! Mesh Levels = 2
+
+!  Dirty Finish = Logical True
 End
 
 ! Maps the constant-thickness mesh between given bedrock and surface topology
@@ -61,6 +66,7 @@ Solver 2
   Active Coordinate = Integer 3
   Operator 1 = depth
   Operator 2 = height
+
 End 
 
 Solver 3
@@ -96,14 +102,42 @@ Solver 4
   Save Slip = Logical True
 
   include nonlinsys.sif
-  include gcr.sif
+!  include gcr.sif
   !include mumps.sif
+
+  include block2_idrs.sif
+
+! GCR+ILU0
+!  Linear System Solver = Iterative
+!  Linear System Iterative Method = "BiCgStabl"
+!  Idrs Parameter = 4
+!  BiCgStabl Polynomial Degree = 5
+!Linear System Convergence Tolerance = 1.0E-08
+! Solving for residual allows us to use sloppier tolerances
+! This seems to faster strategy.
+!  Linear System Residual Mode = True
+!  Linear System Convergence Tolerance = 1.0E-04 
+!  Linear System Max Iterations = 500
+!  Linear System Abort Not Converged = False
+!  Linear System Preconditioning = "BILU1"
+!  Linear System Residual Output = 1 !0
+
 
 ! Some timing info
   Boundary Assembly Timing = Logical True
   Bulk Assembly Timing = Logical True
   Solver Timing = Logical True
   Linear System Timing = Logical True
+  Linear System Timing Cumulative = Logical True
+
+  Number of Integration Points = Integer 21 ! 21, 28, 44, 64, ...
+
+  Exported Variable 1 = freeboard
+  Height Variable Name = String "freeboard"
+
+  GradH Discretization = Logical True
+
+!  Nonlinear System Max Iterations = 50
 
 ! Also works with quadratic p-elements!
 ! Element = p:2
@@ -152,7 +186,7 @@ Material 1
 
   ! First viscosity with newtonian fluid
   ! happens to give velocities of proper size
-  Viscosity = Real 1.0 
+  Viscosity = Real 1.0
 
   ! Nonnewtonian viscosity
   Viscosity Model = String "Glen"
@@ -175,7 +209,11 @@ End
 Boundary Condition 1
   ComputeNormal = Logical False
   Name = "sides"
-  Target Boundaries(4) = 1 2 3 4
+!  Target Boundaries(4) = 1 2 3 4
+  Target Boundaries(9) = 1 2 3 4 5 6 7 8 9
+
+  External Pressure = Variable "Coordinate 3"
+    Real MATC "-rhoi*gravity*(100.0-tx)"
 End
 
 !! DON'T CHANGE ORDER OF NEXT 2 BC's!
@@ -184,9 +222,8 @@ Boundary Condition 2
   Name = "bedrock"
 
 ! 1) No-slip velocity conditions 
-!  Horizontal Velocity 1 = Real 0.0
-!  Horizontal Velocity 2 = Real 0.0
-
+  Horizontal Velocity 1 = Real 0.0
+  Horizontal Velocity 2 = Real 0.0
 
 ! 2) Given slip coefficient 
 !$slipcoeff=1.0
@@ -195,9 +232,9 @@ Boundary Condition 2
 !  Slip Coefficient 3 = $slipcoeff
 
 ! 3) Internal slip relations
-  Weertman Friction Coefficient = Real 0.1
-  Weertman Exponent = Real $1.0/3.0
-  Weertman Linear Velocity = Real 0.00001
+!  Weertman Friction Coefficient = Real 0.1
+!  Weertman Exponent = Real $1.0/3.0
+!  Weertman Linear Velocity = Real 0.00001
 
   Save Scalars = True
 End

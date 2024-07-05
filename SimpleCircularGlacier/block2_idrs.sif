@@ -3,9 +3,9 @@
   Block Matrix Reuse = Logical False
   Block Scaling = Logical False
   Block Preconditioner = Logical True
-! Default is [1 2 3 4]
-! Block Structure(4) = Integer 1 1 1 2
-!  Block Order(4) = Integer 1 2 3 4
+! Default is [1 2]
+! Block Structure(2) = Integer 1 2
+!  Block Order(2) = Integer 1 2
 
 ! Linear System Scaling = False
 ! Linear system solver for outer loop
@@ -23,31 +23,16 @@
   block 11: Linear System Convergence Tolerance = $blocktol
   block 11: Linear System Solver = "iterative"
   block 11: Linear System Scaling = false
-  block 11: Linear System Preconditioning = ilu
-  block 11: Linear System Residual Output = 100
+  block 11: Linear System Preconditioning = ilu0
+  block 11: Linear System Residual Output = 0
   block 11: Linear System Max Iterations = 500
   block 11: Linear System Iterative Method = idrs
 
   block 22: Linear System Convergence Tolerance = $blocktol
   block 22: Linear System Solver = "iterative"
   block 22: Linear System Scaling = false
-  block 22: Linear System Preconditioning = ilu
-  block 22: Linear System Residual Output = 100
+  block 22: Linear System Preconditioning = ilu0
+  block 22: Linear System Residual Output = 0
   block 22: Linear System Max Iterations = 500
   block 22: Linear System Iterative Method = idrs
 
-  block 33: Linear System Convergence Tolerance = $blocktol
-  block 33: Linear System Solver = "iterative"
-  block 33: Linear System Scaling = false
-  block 33: Linear System Preconditioning = ilu
-  block 33: Linear System Residual Output = 100
-  block 33: Linear System Max Iterations = 500
-  block 33: Linear System Iterative Method = idrs
-
-  block 44: Linear System Convergence Tolerance = $blocktol
-  block 44: Linear System Solver = "iterative"
-  block 44: Linear System Scaling = true
-  block 44: Linear System Preconditioning = ilu
-  block 44: Linear System Residual Output = 100
-  block 44: Linear System Max Iterations = 500
-  block 44: Linear System Iterative Method = idrs

@@ -15,7 +15,8 @@ include defs.sif
 
 
 Header
-  Mesh DB "." "circle"
+!  Mesh DB "." "circle"
+  Mesh DB "." "deform"
   Results Directory "results"
 End
 
@@ -169,16 +170,16 @@ Boundary Condition 2
 !  Slip Coefficient 2 = $slipcoeff
 !  Slip Coefficient 3 = $slipcoeff
 
-  Slip Coefficient 2 =  Variable Coordinate 1
-    Real Procedure "ElmerIceUSF" "Sliding_Weertman"
-  Slip Coefficient 3 =  Variable Coordinate 1
-    Real Procedure "ElmerIceUSF" "Sliding_Weertman"
-  Weertman Friction Coefficient = Real 0.1
-  Weertman Exponent = Real $1.0/3.0
-  Weertman Linear Velocity = Real 1.0e-5
+!  Slip Coefficient 2 =  Variable Coordinate 1
+!    Real Procedure "ElmerIceUSF" "Sliding_Weertman"
+!  Slip Coefficient 3 =  Variable Coordinate 1
+!    Real Procedure "ElmerIceUSF" "Sliding_Weertman"
+!  Weertman Friction Coefficient = Real 0.1
+!  Weertman Exponent = Real $1.0/3.0
+!  Weertman Linear Velocity = Real 1.0e-5
   
-!  Velocity 2 = 0.0
-!  Velocity 3 = 0.0
+  Velocity 2 = 0.0
+  Velocity 3 = 0.0
 
   Save Scalars = True
 End

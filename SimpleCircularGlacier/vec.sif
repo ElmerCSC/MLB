@@ -14,6 +14,7 @@ include defs.sif
 
 Header
   Mesh DB "." "circle"
+!  Mesh DB "." "deform"
   Results Directory "results"
 End
 
@@ -37,6 +38,7 @@ Simulation
   ! ------------
   Post File = $name$.vtu
   vtu: Save Bulk Only = Logical True
+!  Ascii Output = True
 
   Max Output Level = 5
 End
@@ -96,6 +98,12 @@ Solver 4
   Bulk Assembly Timing = Logical True
   Solver Timing = Logical True
   Linear System Timing = Logical True
+
+
+! Activate this to save the linear system: linsys_a.dat and linsys_b.dat
+!  Linear System Save = Logical True
+! This one makes the saving happen only after all nonlin iterations. 
+  Linear System Save Slot = "finish"
 End
 
 
@@ -176,8 +184,8 @@ Boundary Condition 2
   Velocity 1 = 0.0
 
 ! no-slip condition
-!  Velocity 2 = 0.0
-!  Velocity 3 = 0.0
+  Velocity 2 = 0.0
+  Velocity 3 = 0.0
 
 !  $slipcoeff=1.0
 !  Slip Coefficient 2 = $slipcoeff
@@ -187,9 +195,9 @@ Boundary Condition 2
 !    Real Procedure "ElmerIceUSF" "Sliding_Weertman"
 !  Slip Coefficient 3 =  Variable Coordinate 1
 !    Real Procedure "ElmerIceUSF" "Sliding_Weertman"
-  Weertman Friction Coefficient = Real 0.1
-  Weertman Exponent = Real $1.0/3.0
-  Weertman Linear Velocity = Real 1.0e-5
+!  Weertman Friction Coefficient = Real 0.1
+!  Weertman Exponent = Real $1.0/3.0
+!  Weertman Linear Velocity = Real 1.0e-5
 
 !  Friction Normal Velocity Zero = Logical True
 
@@ -204,3 +212,5 @@ End
 
 include shape.sif 
 
+Solver 4 :: Reference Norm = 6.00392105E-01
+Solver 5 :: Reference Norm = 1.282076E+08

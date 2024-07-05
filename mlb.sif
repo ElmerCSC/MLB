@@ -22,6 +22,7 @@ $name="S_1995_DEMs"
 ! even symlink is ok.
 $restartdir="outline62_lc75"
 $restartfile="s_1995_dems_init_2d.result"
+!$restartfile="S_1995_dems.result"
 
 $directmethod="mumps" !cPardiso"
 
@@ -115,7 +116,7 @@ Solver 1
 
   ! Restart is always in a serial mesh
   Mesh = -single $restartdir
-  Restart File = $restartfile
+  Restart File = "$restartfile$"
 
   ! We use the primary mesh an single process and unextruded
   ! We want to have unique copy of it.   
