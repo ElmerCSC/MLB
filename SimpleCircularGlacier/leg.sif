@@ -15,8 +15,8 @@ include defs.sif
 
 
 Header
-!  Mesh DB "." "circle"
-  Mesh DB "." "deform"
+  Mesh DB "." "circle"
+!  Mesh DB "." "deform"
   Results Directory "results"
 End
 

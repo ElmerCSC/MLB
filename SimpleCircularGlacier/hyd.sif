@@ -141,6 +141,11 @@ Solver 4
 
 ! Also works with quadratic p-elements!
 ! Element = p:2
+
+! Activate this to save the linear system: linsys_a.dat and linsys_b.dat
+!  Linear System Save = Logical True
+! This one makes the saving happen only after all nonlin iterations. 
+  Linear System Save Slot = "finish"
 End
 
 Solver 5
