@@ -198,10 +198,10 @@ Solver 4
 
    Linear System Use Rocalution = Logical True
 
-   Linear System Convergence Tolerance = 1.0e-8
+   Linear System Convergence Tolerance = 1.0e-6
    Linear System Preconditioning = Schur
    Linear System Residual Output = 1
-   Steady State Convergence Tolerance = 1.0e-5
+   Steady State Convergence Tolerance = 1.0e-3
 
    Nonlinear System Convergence Tolerance = 1.0e-5
    Nonlinear System Max Iterations = 30
