@@ -16,7 +16,7 @@
 ! DEFINITIONS used in run
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 $name="S_1995_DEMs_gw_glads_init"
-$meshfile="outline62_lc75"
+$meshfile="outline62_lc50"
 $element="p:1 b:1"
 #MINH=20.0
 #Tc = -1.0
@@ -33,7 +33,7 @@ $element="p:1 b:1"
 ! Note that the Mesh2MeshSolver requires solver specific
 ! mesh and hence this must be different than primary mesh,
 ! even symlink is ok.
-$restartdir="outline62_lc75"
+$restartdir="outline62_lc50"
 $restartfile="S_1995_DEMs_gw_tmc_init.result"
 
 
@@ -254,7 +254,7 @@ End
 
 ! vectorized & threaded version of the Navier-Stokes solver.
 Solver 4
-  !Exec Solver = "Never"
+  Exec Solver = "Before Simulation"
   Equation = "Stokes-Vec"
   Procedure = "IncompressibleNSVec" "IncompressibleNSSolver"
   Div-Curl Discretization = Logical False
@@ -297,7 +297,7 @@ End
 ! as upper limit
 !-----------------------------------------------------
 Solver 5
-  !Exec Solver = "Never"
+  Exec Solver = "Before Simulation"
   Equation = String "Homologous Temperature Equation"
   Procedure =  File "HeatSolveVec" "HeatSolver"
   ! Comment next line in parallel, as EliminateDirichlet does
@@ -625,18 +625,18 @@ Body Force 2
   Channel Flux Condition = Opposes glaciated
   Channel Area Passive = Opposes glaciated
   Channel Flux Passive = Opposes glaciated
-  Hydraulic Potential = Real 0.0
-  !Hydraulic Potential = Variable Coordinate 3
-  !   Real Lua "-rhow*gravity*tx[0]"
+  !Hydraulic Potential = Real 0.0
+  Hydraulic Potential = Variable Coordinate 3
+     Real Lua "-rhow*gravity*tx[0]"
   Hydraulic Potential Condition = Opposes glaciated
   Hydraulic Potential Passive = Opposes glaciated
   Sheet Thickness = Real 0.001
   Sheet Thickness Condition = Opposes glaciated
 
   Hydraulic Potential Volume Source = Variable "temperature contact load", "temperature boundary weights", "temperature contact active"
-  Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + Source*tx[2]"
+  Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + 0.0*Source*tx[2]"
    Meltrate =  Variable "temperature contact load", "temperature boundary weights", "temperature contact active"
-       Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + Source*tx[2]"
+       Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + 0.0*Source*tx[2]"
  End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -819,7 +819,9 @@ Boundary Condition 1
   Velocity 2 = 0
   Velocity 3 = 0
   No Channel BC = Logical True
-  Hydraulic Potential =  Real 0.0
+  !Hydraulic Potential =  Real 0.0
+   Hydraulic Potential = Variable Coordinate 3
+     Real Lua "-rhow*gravity*tx[0]"
   Hydraulic Potential Conditions = Opposes  glaciated
 End
 
@@ -833,7 +835,9 @@ Boundary Condition 2
   Velocity 2 = 0
   Velocity 3 = 0
   No Channel BC = Logical True
-  Hydraulic Potential =  Real 0.0
+  !Hydraulic Potential =  Real 0.0
+   Hydraulic Potential = Variable Coordinate 3
+     Real Lua "-rhow*gravity*tx[0]"
   Hydraulic Potential Conditions = Opposes glaciated
 End
 

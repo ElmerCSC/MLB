@@ -19,15 +19,15 @@ alphas = 1.25
 betas = 1.5 
 lr = 2.0 
 hr = 0.1 -- 0.1 
-Ks = -2.0/(rhow*gravity)  -- 0.05
+Ks = -10.0*2.0/(rhow*gravity)  -- 0.05
 Hs = 0.01 --  0.01 IC for h
-ev = 0.0 -- 0
+ev = 0.0001 -- 0
 Source = 0.5/yearinsec
 
 --  For the Channels
 alphac = 1.25 
 betac = 1.5 
-Kc = 0.1 -- 0.1
+Kc = 0.5 -- 0.1
 Ac = Aglen  
 lc = 2.0 --  2.0 
 Ct = 7.5e-8
