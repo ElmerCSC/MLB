@@ -551,9 +551,9 @@ Boundary Condition 1
   Velocity 3 = 0
   No Channel BC = Logical True
   !Hydraulic Potential =  Real 0.0
-   Hydraulic Potential = Variable Coordinate 3
-     Real Lua "-rhow*gravity*tx[0]"
-  Hydraulic Potential Conditions = Opposes  glaciated
+   !Hydraulic Potential = Variable Coordinate 3
+     !Real Lua "-rhow*gravity*tx[0]"
+  !Hydraulic Potential Conditions = Opposes  glaciated
 End
 
 Boundary Condition 2
@@ -567,9 +567,9 @@ Boundary Condition 2
   Velocity 3 = 0
   No Channel BC = Logical True
   !Hydraulic Potential =  Real 0.0
-   Hydraulic Potential = Variable Coordinate 3
-     Real Lua "-rhow*gravity*tx[0]"
-  Hydraulic Potential Conditions = Opposes glaciated
+   !Hydraulic Potential = Variable Coordinate 3
+     !Real Lua "-rhow*gravity*tx[0]"
+  !Hydraulic Potential Conditions = Opposes glaciated
 End
 
 Boundary Condition 3
