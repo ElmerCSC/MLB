@@ -79,9 +79,9 @@ Simulation
   
   Timestepping Method = "bdf"
   BDF Order = 1
-  Timestep Intervals(1) = #100*24
-  Timestep Sizes(1) = #3600
-  Output Intervals(1) = 24
+  Timestep Intervals(1) = #100*6
+  Timestep Sizes(1) = #4*3600
+  Output Intervals(1) = 6
   !Timestep Size = Variable Timestep
   !   Real LUA "settimestepsize(tx[0])"
 
@@ -425,6 +425,8 @@ End
 Initial Condition 2
   ! Initial velocity is not really needed when using newtonian start
    Sheet Thickness = Real #Hs
+   Hydraulic Potential = Variable Coordinate 3, Depth
+     Real Lua "-rhow*gravity*(tx[0] + 0.95*tx[1])"
 End
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! BODY FORCE
@@ -456,18 +458,14 @@ Body Force 2
   Hydraulic Potential = Variable Coordinate 3
      Real Lua "-rhow*gravity*tx[0]"
   Hydraulic Potential Condition = Opposes glaciated
-  Hydraulic Potential Passive = Opposes glaciated
+  !Hydraulic Potential Passive = Opposes glaciated
   Sheet Thickness = Real 0.001
   Sheet Thickness Condition = Opposes glaciated
   Hydraulic Potential Volume Source = Variable "temperature contact load", "temperature boundary weights", "temperature contact active"
     Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + Source*tx[2]"
-  !Hydraulic Potential Volume Source = Variable "Moulin Flux", "Moulin Mask", "temperature boundary weights"
-  !     Real LUA "IfThenElse(tx[1] > 0.0,tx[0]/tx[2],0.0)"
   Meltrate =  Variable "temperature contact load", "temperature boundary weights", "temperature contact active"
     Real LUA "getmeltrate(tx[0],tx[1],tx[2]) + Source*tx[2]"
-  ! Meltrate = Variable "Moulin Flux", "Moulin Mask", "temperature boundary weights"
-  !     Real LUA "IfThenElse(tx[1] > 0.0,tx[0]/tx[2],0.0)"
- End
+End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! MATERIAL
@@ -495,12 +493,11 @@ Material 1
   Glen Enhancement Factor = Real 1.0
   Relative Temperature = Variable Temperature
     Real lua "tx[0] - 273.15"
+    
   ! Heat transfer stuff
   Heat Capacity = Variable Temperature
     Real lua "capacity(tx[0])"
-  
-
-   Heat Conductivity = Variable Temperature
+  Heat Conductivity = Variable Temperature
     Real lua "conductivity(tx[0])"
     
   Pressure Scaling Factor = Real 1.0
@@ -513,20 +510,20 @@ Material 1
   Sheet flow exponent beta = Real #betas
   Englacial Void Ratio = Real #ev       
 
-  Sliding Velocity = Variable Velocity 1, Velocity 2, Velocity 3
-     Real LUA "math.sqrt(tx[0]*tx[0] + tx[1]*tx[1] + tx[2]*tx[2])"
+  Sliding Velocity = Variable Velocity 1, Velocity 2, Velocity 3, glaciated
+     Real LUA "math.sqrt(tx[0]*tx[0] + tx[1]*tx[1] + tx[2]*tx[2])*0.5*(tx[3] + 1.0)"
 
   Bedrock Bump Length = Real #lr
   Bedrock Bump High = Real #hr
-  !Sheet Closure Coefficient = Real #Ar
   Sheet Closure Coefficient = Variable "Relative Temperature"
      Real Lua "arrhenius(tx[0])"
+     
 ! For the Channels
-  Channel Conductivity = Real #Kc 
+  ! almost no conductivity in deglaciated area
+  Channel Conductivity = Variable Glaciated
+      Real LUA "Kc*(0.99*(1 + tx[0])*0.5 + 0.01)"
   Channel flow exponent alpha = Real #alphac
-  Channel flow exponent beta = Real #betac
-  !Sheet Closure Coefficient = Real #Ar
-  !Channel Closure Coefficient = Real #Ac  
+  Channel flow exponent beta = Real #betac 
   Channel Closure Coefficient = Variable "Relative Temperature"
      Real Lua "arrhenius(tx[0])"
   Sheet Width Over Channel = Real #lc
@@ -550,10 +547,7 @@ Boundary Condition 1
   Velocity 2 = 0
   Velocity 3 = 0
   No Channel BC = Logical True
-  !Hydraulic Potential =  Real 0.0
-   !Hydraulic Potential = Variable Coordinate 3
-     !Real Lua "-rhow*gravity*tx[0]"
-  !Hydraulic Potential Conditions = Opposes  glaciated
+  Hydraulic Potential = Real 0.0
 End
 
 Boundary Condition 2
@@ -566,10 +560,7 @@ Boundary Condition 2
   Velocity 2 = 0
   Velocity 3 = 0
   No Channel BC = Logical True
-  !Hydraulic Potential =  Real 0.0
-   !Hydraulic Potential = Variable Coordinate 3
-     !Real Lua "-rhow*gravity*tx[0]"
-  !Hydraulic Potential Conditions = Opposes glaciated
+  Hydraulic Potential =  Real 0.0
 End
 
 Boundary Condition 3
