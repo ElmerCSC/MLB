@@ -20,7 +20,12 @@ $meshfile="outline62_lc75"
 $element="p:1 b:1"
 #MINH=20.0
 #Tc = -1.0
-#directmethod="mumps" 
+#directmethod="mumps"
+
+#dt=3600*4
+#output=6
+#tsteps=100*6
+
 !---LUA BEGIN
 ! assert(loadfile('./icematerial_SI.lua'))()
 ! assert(loadfile('./glads.lua'))()
@@ -79,9 +84,9 @@ Simulation
   
   Timestepping Method = "bdf"
   BDF Order = 1
-  Timestep Intervals(1) = #100*6
-  Timestep Sizes(1) = #4*3600
-  Output Intervals(1) = 6
+  Timestep Intervals(1) = #tsteps
+  Timestep Sizes(1) = #dt
+  Output Intervals(1) = #output
   !Timestep Size = Variable Timestep
   !   Real LUA "settimestepsize(tx[0])"
 
@@ -365,7 +370,7 @@ Solver 9
   Exec Solver = After Timestep
   !Exec Solver = "never"
   Equation = "GlaDS Channel OutPut"
-  Exec Interval = 24
+  Exec Interval = #output
   Procedure = "ElmerIceSolvers" "GlaDSchannelOut"
   Variable = -dofs 1 "Channel Area"
 ! Define that the variable is define on the edges only

@@ -98,7 +98,7 @@ Simulation
   !  3 = Only warnings
   ! 32 = Maximum verbosity
   !-------------------------------------------------------
-  Max Output Level = 2
+  Max Output Level = 7
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -115,7 +115,7 @@ Solver 1
 
   ! Restart is always in a serial mesh
   Mesh = -single $restartdir
-  Restart File = $restartfile
+  Restart File = "$restartfile$"
 
   ! We use the primary mesh an single process and unextruded
   ! We want to have unique copy of it.   
@@ -258,7 +258,6 @@ Solver 5
   Variable 2 = String "Particle Time"
   Operator 2 = String "Cumulative"
 
-
 ! The field variables being advected
   Variable 3 = String "Coordinate 1"
   Result Variable 3 = String "Advected X"
@@ -325,7 +324,7 @@ Material 1
   Viscosity = Real 1.0 
 
   ! Nonnewtonian viscosity
-  Viscosity Model = String Glen
+  Viscosity Model = String "Glen"
   Glen Exponent = Real 3.0
   Critical Shear Rate =  Real 1.0E-10
   ! Paterson value in MPa^-3a^-1
