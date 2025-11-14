@@ -93,7 +93,7 @@ Simulation
 
   ! Restart happens in Solver 1
   Restart Before Initial Conditions = Logical True
-  Interpolation Passive Coordinate = Integer 3 
+  
 
   ! how verbose the solver should be
   !  3 = Only warnings

@@ -21,6 +21,8 @@ A1 = 3.985E-13         --- MPa^(-3) a^(-1) -> SI
 A2 = 1.916E3          --- MPa^(-3) a^(-1) -> SI
 Q1 = 60.0E3 
 Q2 = 139.0E3
+Lheat=334000.0
+Tref=200.0
 
 -- # utility functions
 function max(a,b)
@@ -63,6 +65,17 @@ function capacity(Tin)
   end 
   c=146.3+(7.253*T)
   return c
+end
+
+-- ## surface enthalpy
+function surfaceenthalpy(Tin,omega)
+  T = Tin
+  if (T > 273.15) then
+    T = 273.15
+  end 
+  Hs=146.3*(T - Tref) + 0.5*7.253*(T*T - Tref*Tref) + Lheat*omega
+  print("Hs(",Tin,")=",Hs)
+  return Hs
 end
 
 -- ## relative temperature

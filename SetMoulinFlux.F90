@@ -205,7 +205,7 @@ CONTAINS
       !timeofyearinseconds(i) = infield(1)  !!CHANGE BACK
       totalflux(dayofyear) = infield(2)
       moulinfluxes(dayofyear, 1:ncols-2) = infield(3:ncols)
-      WRITE(Message,*) timeofyearinseconds(i), totalflux(i), moulinfluxes(i,1:ncols)
+      WRITE(Message,*) "time:",timeofyearinseconds(i),"toitalflux:", totalflux(i), "moulinflux(1:3):", moulinfluxes(i,1:3)
       CALL INFO("SetMoulinFlux",Message,Level=10)
     END DO
 10  CLOSE(10)
