@@ -23,6 +23,8 @@ Q1 = 60.0E3
 Q2 = 139.0E3
 Lheat=334000.0
 Tref=200.0
+Hca=7.253
+Hcb=146.3
 
 -- # utility functions
 function max(a,b)
@@ -57,6 +59,7 @@ function conductivity(Tin)
  return k
 end
 
+
 -- ## heat capacity
 function capacity(Tin)
   T = Tin
@@ -67,15 +70,23 @@ function capacity(Tin)
   return c
 end
 
--- ## surface enthalpy
-function surfaceenthalpy(Tin,omega)
+function capacityH(Tin)
   T = Tin
-  if (T > 273.15) then
-    T = 273.15
-  end 
-  Hs=146.3*(T - Tref) + 0.5*7.253*(T*T - Tref*Tref) + Lheat*omega
-  print("Hs(",Tin,")=",Hs)
-  return Hs
+  c=Hcb+(Hca*T)
+  return c
+end
+
+-- ## surface enthalpy
+function surfaceenthalpy(Tin,Tpm,omega)
+   if (Tin > Tpm) then
+      Tin = Tpm
+      Hs=Lheat*omega
+   else
+      Hs=0.0
+   end
+   Hs = Hs + Hcb*(Tin - Tref) + 0.5*Hca*(Tin*Tin - Tref*Tref)
+   -- print("Hs(",Tin,")=",Hs)
+   return Hs
 end
 
 -- ## relative temperature
