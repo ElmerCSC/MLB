@@ -58,9 +58,9 @@ Constants
 ! Cp(T) = A*T + B
  Enthalpy Heat Capacity A = Real #Hca
  Enthalpy Heat Capacity B = Real #Hcb
- P_triple = real 0.061173 !Triple point pressure for water (MPa)
- P_surf = real 0.1013 ! Surface atmospheric pressure(MPa)
- beta_clapeyron = real 0.0974 ! clausus clapeyron relationship (K MPa-1)
+ P_triple = real #0.061173*1.0E06 !Triple point pressure for water (Pa)
+ P_surf = real #0.1013*1.0E06 ! Surface atmospheric pressure(Pa)
+ beta_clapeyron = real #0.0974*1.0E-06 ! clausus clapeyron relationship (K Pa-1)
 End
 
 
@@ -327,16 +327,7 @@ Body Force 1
   Flow BodyForce 1 = 0.0
   Flow BodyForce 2 = 0.0 
   Flow BodyForce 3 = #gravity
-  !Temperature_HTEQ Upper Limit = Real 273.15
-  !Temperature_HTEQ = Real 273.15
-  !Temperature_HTEQ Condition =Variable Coordinate 3 
-  !    Real
-  !          0.0      -1.0
-  !	  399.9999   -1.0
-  !	  400.        1.0
-  !       1000.0       1.0
-  !    End
-  Enthalpy_h = Real #surfaceenthalpy(273.15,273.15,0.0)
+  Enthalpy_h = Real #surfaceenthalpy(273.16,273.16,0.0)
   Enthalpy_h Condition = Variable Coordinate 3
         Real
             0.0      -1.0
@@ -344,12 +335,7 @@ Body Force 1
 	  400.        1.0
          1000.0       1.0
       End
-  !Relative Temperature = Variable "Temperature_HTEQ", "Pressure"
-  !   Real Procedure "ElmerIceUSF" "RelativeTemperature"
-  !Velocity_m_a 1 = Variable Velocity 1
-  !   Real LUA ""
-  !Variable Coordinate 3
-  !  Real lua "settemperate(tx[0])"
+   !Heat Source = Variable    
 End
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -379,19 +365,17 @@ Material 1
   !Relative Temperature = Variable "Temperature_hteq"
   !  Real lua "tx[0] - 273.15"
 
-  Relative Temperature = Real -1.0
+  Relative Temperature = Equals Temperature
 
   ! Heat transfer stuff
-  Heat Capacity = Variable Temperature
-    Real lua "capacity(tx[0])"
+  !Heat Capacity = Variable Temperature
+  !  Real lua "capacity(tx[0])"
   
 
-   Heat Conductivity = Variable Temperature
-    Real lua "conductivity(tx[0])"
+  ! Heat Conductivity = Variable Temperature
+  !  Real lua "conductivity(tx[0])"
     
   Pressure Scaling Factor = Real #1.0
-  Temperature_HTEQ Upper Limit = Real 273.15 ! we ignore pressure melting point
-
 
   Enthalpy Density = Real  #rhoi
   !Enthalpy Heat Diffusivity = Variable "Temperature_HTEQ"
@@ -399,8 +383,6 @@ Material 1
   Enthalpy Heat Diffusivity = Real #2.1/2050.0
           !2.1/2050.0 ! = k / Cp
   Enthalpy Water Diffusivity = real #1.045e-4
-
-  
      
 End
 
@@ -454,13 +436,13 @@ Boundary Condition 3
 ! Refererred by: Exported Variable 1 Mask = ...
   Bedrock = Logical True
   Temperature Flux BC = Logical True
-  Heat Flux = Real #0.050 
+  !Enthalpy Heat Flux = Real #0.050 
   ! 50 mW m^-2
   Friction Loads = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
     Real Lua "frictionloads(tx[0],tx[1],tx[2],tx[3],tx[4],tx[5])"
   Target Boundaries(1) = 3
-  Temperature Load = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
-    Real Lua "frictionloads(tx[0],tx[1],tx[2],tx[3],tx[4],tx[5])"
+  Enthalpy Heat Flux = Variable Flow Solution Loads 1, Flow Solution Loads 2, Flow Solution Loads 3, Velocity 1, Velocity 2, Velocity 3
+    Real Lua "0.130 + frictionloads(tx[0],tx[1],tx[2],tx[3],tx[4],tx[5])"
   Calculate Temperature Boundary Weights = Logical True
 
   Enthalpy Heat Flux BC = Logical True
