@@ -77,7 +77,7 @@ Simulation
 
   ! Coupled iterations between different solvers
   !---------------------------------------------
-  Steady State Max Iterations = 1
+  Steady State Max Iterations = 50
   Steady State Min Iterations = 1
 
   Output Intervals = 1
@@ -237,17 +237,17 @@ Solver 5
   !Exec Solver = "after timestep"
   Procedure = File "ElmerIceSolvers" "EnthalpySolver"
   Variable = String "Enthalpy_h"
-  !Linear System Solver = "Iterative"
-  !Linear System Iterative Method = "BiCGStab"
-  !Linear System Max Iterations = 500
-  !Linear System Convergence Tolerance = 1.0E-07
-  !Linear System Abort Not Converged = True
-  !Linear System Preconditioning = "ILU0"
-  Linear System Solver = "Direct"
-  Linear System Direct Method = "UMFPACK"
+  Linear System Solver = "Iterative"
+  Linear System Iterative Method = "BiCGStab"
+  Linear System Max Iterations = 500
+  Linear System Convergence Tolerance = 1.0E-07
+  Linear System Abort Not Converged = True
+  Linear System Preconditioning = "ILU1"
+  !Linear System Solver = "Direct"
+  !Linear System Direct Method = "UMFPACK"
   Linear System Residual Output = 1
-  Steady State Convergence Tolerance = 1.0E-04
-  Nonlinear System Convergence Tolerance = 1.0E-03
+  Steady State Convergence Tolerance = 1.0E-03
+  Nonlinear System Convergence Tolerance = 1.0E-04
   Nonlinear System Max Iterations = 30
 !  Nonlinear System Relaxation Factor = Real 1.0 
 
