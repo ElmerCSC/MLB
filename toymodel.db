@@ -1,0 +1,233 @@
+7         NumberOfRockRecords
+Granite1  1
+0.1       Xi0
+0.01      eta0
+0.01      etak
+3.0851    ks0th
+0.006     e1
+0.6411    bs
+2780.0    rhos0
+700.0     cs0
+0.0       hs0
+1.0e-05   kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+1.0e-05   kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+1.0e-07   kgwh0_33
+4.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+60.0e09   Es0
+0.35      nuS0
+0         acsl
+0         aasl
+0         cksl
+Granite2  2
+0.1       Xi0
+0.01      eta0
+0.01      etak
+3.0851    ks0th
+0.006     e1
+0.6411    bs
+2780.0    rhos0
+700.0     cs0
+0.0       hs0
+1.0e-08   kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+1.0e-08   kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+1.0e-09   kgwh0_33
+4.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+60.0e09   Es0
+0.35      nuS0
+0         acsl
+0         aasl
+0         cksl
+Granite3  3
+0.1       Xi0
+0.01      eta0
+0.01      etak
+3.0851    ks0th
+0.006     e1
+0.6411    bs
+2780.0    rhos0
+700.0     cs0
+0.0       hs0
+1.0e-09   kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+1.0e-09   kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+1.0e-10   kgwh0_33
+4.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+60.0e09   Es0
+0.35      nuS0
+0         acsl
+0         aasl
+0         cksl
+Granite4  4
+0.1       Xi0
+0.01      eta0
+0.01      etak
+3.0851    ks0th
+0.006     ew
+0.6411    bs
+2780.0    rhos0
+700.0     cs0
+0.0       hs0
+1.0e-11   kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+1.0e-11   kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+1.0e-11   kgwh0_33
+4.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+60.0e09   Es0
+0.35      nuS0
+0         acsl
+0         aasl
+0         cksl
+Water     5
+0.0       Xi0
+0.99      eta0
+0.99      etak
+0.56      ks0th
+0.00      ew
+0.0       bs
+999.9     rhos0
+4207.7    cs0
+0.0       hs0
+0.0       kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+0.0       kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+0.0       kgwh0_33
+0.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+0.0       Es0
+0.5       nuS0
+0         acsl
+0         aasl
+0         cksl
+Till      6
+0.6       Xi0
+0.25      eta0
+0.25      etak
+2.0       ks0th
+0.002     e1
+0.0       bs
+2000.0    rhos0
+1250.0    cs0
+0.0       hs0
+1.0e-06   kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+1.0e-06   kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+1.0e-06   kgwh0_33
+4.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+1.0e06    Es0
+0.3       nus0
+0         acsl
+0         aasl
+0         cksl
+Sand      7
+0.1       Xi0
+0.35      eta0
+0.1       etak
+3.5       ks0th
+0.006     e1
+0.0       bs
+2600.0    rhos0
+840.0     cs0
+0.0       hs0
+5.474e-04 kgwh0_11
+0.0       kgwh0_12
+0.0       kgwh0_13
+0.0       kgwh0_21
+5.474e-04 kgwh0_22
+0.0       kgwh0_23
+0.0       kgwh0_31
+0.0       kgwh0_32
+5.474e-04 kgwh0_33
+4.0       qexp
+0.0       alphaL
+0.0       alphaT
+0.0       RadGen
+1.0 0.0 0.0 0.0 0.0 0.0 acs
+0.0       as0
+1.0 0.0 0.0 0.0 0.0 0.0 aas
+0.0       ks0
+1.0 0.0 0.0 0.0 0.0 0.0 cks
+50.0e06   Es0
+0.30      nuS0
+0         acsl
+0         aasl
+0         cksl
+
