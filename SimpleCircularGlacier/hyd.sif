@@ -168,6 +168,17 @@ Solver 5
   Filename = $name$.dat
 End
 
+
+Solver 6
+  Equation = YacData
+  Procedure = "YacData" "YacData"
+  Exec Solver = "before all"
+
+  Yac Mask Variable = String "Yac"
+  Variable = Yac 
+End
+
+
 Body 1
   Name = "glacier"
   Equation = 1
@@ -175,8 +186,18 @@ Body 1
   Body Force = 1
 End
 
+Body 2
+  Name = "bc"
+  Equation = 2
+  Material = 1
+End
+
 Equation 1
   Active Solvers(4) = 1 2 3 4
+End
+
+Equation 2
+  Active Solvers(1) = 6
 End
 
 Body Force 1
@@ -247,6 +268,8 @@ End
 Boundary Condition 3
   ComputeNormal = Logical False
   Name = "surface"
+
+  Body Id = 2
 End 
 
 include shape.sif 
